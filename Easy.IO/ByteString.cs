@@ -10,7 +10,7 @@ namespace Easy.IO
            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
         /** A singleton empty {@code ByteString}. */
-        //public static ByteString EMPTY = ByteString.Of();
+        public static ByteString EMPTY = ByteString.Of();
         private byte[] data;
         private int hashCode; // Lazily computed; 0 if unknown.
         private string utf8; // Lazily computed.

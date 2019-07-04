@@ -5,21 +5,7 @@ using System.Text;
 
 namespace Easy.IO
 {
-    public enum Algorithm
-    {
-        MD5,
-        SHA1,
-        SHA256,
-        SHA384,
-        SHA512,
-        HMACMD5,
-        HMACSHA1,
-        HMACSHA256,
-        HMACSHA384,
-        HMACSHA512
-    }
-
-    class AlgorithmHelper
+    public sealed class AlgorithmHelper
     {
         public static ByteString HashByteString(ByteString bytes, Algorithm algorithmType, ByteString key = null)
         {
@@ -92,4 +78,19 @@ namespace Easy.IO
         }
 
     }
+
+    public enum Algorithm
+    {
+        MD5,
+        SHA1,
+        SHA256,
+        SHA384,
+        SHA512,
+        HMACMD5,
+        HMACSHA1,
+        HMACSHA256,
+        HMACSHA384,
+        HMACSHA512
+    }
+
 }

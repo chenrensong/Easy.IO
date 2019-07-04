@@ -139,7 +139,7 @@ namespace Easy.IO
             {
                 long bufferOffset = offset + i;
                 if (!Request(bufferOffset + 1)) return false;
-                if (easyBuffer.getByte(bufferOffset) != bytes.GetByte(bytesOffset + i)) return false;
+                if (easyBuffer.GetByte(bufferOffset) != bytes.GetByte(bytesOffset + i)) return false;
             }
             return true;
         }
@@ -236,7 +236,7 @@ namespace Easy.IO
             Require(1);
             for (int pos = 0; Request(pos + 1); pos++)
             {
-                byte b = easyBuffer.getByte(pos);
+                byte b = easyBuffer.GetByte(pos);
                 if ((b < '0' || b > '9') && (pos != 0 || b != '-'))
                 {
                     // Non-digit, or non-leading negative sign.
@@ -292,7 +292,7 @@ namespace Easy.IO
             Require(1);
             for (int pos = 0; Request(pos + 1); pos++)
             {
-                byte b = easyBuffer.getByte(pos);
+                byte b = easyBuffer.GetByte(pos);
                 if ((b < '0' || b > '9') && (b < 'a' || b > 'f') && (b < 'A' || b > 'F'))
                 {
                     // Non-digit, or non-leading negative sign.
@@ -374,7 +374,7 @@ namespace Easy.IO
         {
             Require(1);
 
-            byte b0 = easyBuffer.getByte(0);
+            byte b0 = easyBuffer.GetByte(0);
             if ((b0 & 0xe0) == 0xc0)
             {
                 Require(2);
@@ -413,8 +413,8 @@ namespace Easy.IO
             long newline = IndexOf((byte)'\n', 0, scanLength);
             if (newline != -1) return easyBuffer.readUtf8Line(newline);
             if (scanLength < long.MaxValue
-                && Request(scanLength) && easyBuffer.getByte(scanLength - 1) == '\r'
-                && Request(scanLength + 1) && easyBuffer.getByte(scanLength) == '\n')
+                && Request(scanLength) && easyBuffer.GetByte(scanLength - 1) == '\r'
+                && Request(scanLength + 1) && easyBuffer.GetByte(scanLength) == '\n')
             {
                 return easyBuffer.readUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
             }
@@ -442,27 +442,25 @@ namespace Easy.IO
 
         public int Select(Options options)
         {
-            //if (closed) throw new IllegalStateException("closed");
+            if (closed) throw new IllegalStateException("closed");
 
-            //while (true)
-            //{
-            //    int index = easyBuffer.selectPrefix(options, true);
-            //    if (index == -1) return -1;
-            //    if (index == -2)
-            //    {
-            //        // We need to grow the buffer. Do that, then try it all again.
-            //        if (source.read(easyBuffer, Segment.SIZE) == -1L) return -1;
-            //    }
-            //    else
-            //    {
-            //        // We matched a full byte string: consume it and return it.
-            //        int selectedSize = options.byteStrings[index].size();
-            //        easyBuffer.skip(selectedSize);
-            //        return index;
-            //    }
-            //}
-
-            throw new PlatformNotSupportedException();
+            while (true)
+            {
+                int index = easyBuffer.selectPrefix(options, true);
+                if (index == -1) return -1;
+                if (index == -2)
+                {
+                    // We need to grow the buffer. Do that, then try it all again.
+                    if (source.Read(easyBuffer, Segment.SIZE) == -1L) return -1;
+                }
+                else
+                {
+                    // We matched a full byte string: consume it and return it.
+                    int selectedSize = options.byteStrings[index].Size();
+                    easyBuffer.Skip(selectedSize);
+                    return index;
+                }
+            }
         }
 
         public void Skip(long byteCount)

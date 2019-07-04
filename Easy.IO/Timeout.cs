@@ -15,9 +15,9 @@ namespace Easy.IO
          * True if {@code deadlineNanoTime} is defined. There is no equivalent to null
          * or 0 for {@link System#nanoTime}.
          */
-        private bool hasDeadline;
-        private long deadlineNanoTime;
-        private long timeoutNanos;
+        private bool _hasDeadline;
+        private long _deadlineNanoTime;
+        private long _timeoutNanos;
         public static Timeout NONE = new NoneTimeout();
 
         public Timeout()
@@ -36,7 +36,7 @@ namespace Easy.IO
         {
             if (timeout < 0) throw new IllegalArgumentException("timeout < 0: " + timeout);
             if (unit == default) throw new IllegalArgumentException("unit == null");
-            this.timeoutNanos = unit.ToNanos(timeout);
+            this._timeoutNanos = unit.ToNanos(timeout);
             return this;
         }
 
@@ -45,7 +45,7 @@ namespace Easy.IO
         {
             get
             {
-                return timeoutNanos;
+                return _timeoutNanos;
             }
         }
 
@@ -54,24 +54,26 @@ namespace Easy.IO
         {
             get
             {
-                return hasDeadline;
+                return _hasDeadline;
             }
         }
 
-
-        public long DeadlineNanoTime()
+        public virtual long DeadlineNanoTime
         {
-            if (!hasDeadline) throw new IllegalStateException("No deadline");
-            return deadlineNanoTime;
+            get
+            {
+                if (!_hasDeadline)
+                {
+                    throw new IllegalStateException("No deadline");
+                }
+                return _deadlineNanoTime;
+            }
+            set
+            {
+                this._hasDeadline = true;
+                this._deadlineNanoTime = value;
+            }
         }
-
-        public virtual Timeout DeadlineNanoTime(long deadlineNanoTime)
-        {
-            this.hasDeadline = true;
-            this.deadlineNanoTime = deadlineNanoTime;
-            return this;
-        }
-
 
 
         /** Set a deadline Of now plus {@code duration} time. */
@@ -80,21 +82,21 @@ namespace Easy.IO
             if (duration <= 0) throw new IllegalArgumentException("duration <= 0: " + duration);
             if (unit == default) throw new IllegalArgumentException("unit == null");
             var value = System.NanoTime() + unit.ToNanos(duration);
-            deadlineNanoTime = value;
+            _deadlineNanoTime = value;
             return this;
         }
 
         /** Clears the timeout. Operating system timeouts may still apply. */
         public Timeout ClearTimeout()
         {
-            this.timeoutNanos = 0;
+            this._timeoutNanos = 0;
             return this;
         }
 
         /** Clears the deadline. */
         public Timeout ClearDeadline()
         {
-            this.hasDeadline = false;
+            this._hasDeadline = false;
             return this;
         }
 
@@ -108,7 +110,7 @@ namespace Easy.IO
                     Monitor.Enter(mon);
                     return;
                 }
-                catch (ThreadInterruptedException e)
+                catch (Exception e)
                 {
                     wasInterrupted = true;
                 }
@@ -123,16 +125,7 @@ namespace Easy.IO
          */
         public virtual void ThrowIfReached()
         {
-            try
-            {
-                Thread.CurrentThread.Interrupt(); // Retain interrupted status.
-            }
-            catch (Exception ex)
-            {
-                throw new InterruptedIOException("interrupted");
-            }
-
-            if (hasDeadline && deadlineNanoTime - System.NanoTime() <= 0)
+            if (_hasDeadline && _deadlineNanoTime - System.NanoTime() <= 0)
             {
                 throw new InterruptedIOException("deadline reached");
             }
@@ -178,8 +171,8 @@ namespace Easy.IO
         {
             try
             {
-                bool hasDeadline = this.hasDeadline;
-                long timeoutNanos = this.timeoutNanos;
+                bool hasDeadline = this._hasDeadline;
+                long timeoutNanos = this._timeoutNanos;
 
                 if (!hasDeadline && timeoutNanos == 0L)
                 {
@@ -193,12 +186,12 @@ namespace Easy.IO
                 long start = System.NanoTime();
                 if (hasDeadline && timeoutNanos != 0)
                 {
-                    long deadlineNanos = deadlineNanoTime - start;
+                    long deadlineNanos = _deadlineNanoTime - start;
                     waitNanos = Math.Min(timeoutNanos, deadlineNanos);
                 }
                 else if (hasDeadline)
                 {
-                    waitNanos = deadlineNanoTime - start;
+                    waitNanos = _deadlineNanoTime - start;
                 }
                 else
                 {
@@ -211,7 +204,6 @@ namespace Easy.IO
                 {
                     long waitMillis = waitNanos / 1000000L;
                     Monitor.Wait(waitMillis, (int)(waitNanos - waitMillis * 1000000L));
-                    //monitor.wait(waitMillis, (int)(waitNanos - waitMillis * 1000000L));
                     elapsedNanos = System.NanoTime() - start;
                 }
 
@@ -221,7 +213,7 @@ namespace Easy.IO
                     throw new InterruptedIOException("timeout");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 Thread.CurrentThread.Interrupt();
                 throw new InterruptedIOException("interrupted");
@@ -237,9 +229,10 @@ namespace Easy.IO
             return this;
         }
 
-        public override Timeout DeadlineNanoTime(long deadlineNanoTime)
+        public override long DeadlineNanoTime
         {
-            return this;
+            get => base.DeadlineNanoTime;
+            set { }
         }
 
         public override void ThrowIfReached()

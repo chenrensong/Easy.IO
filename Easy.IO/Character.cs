@@ -4,7 +4,7 @@ namespace Easy.IO
 {
     internal class Character
     {
-        //https://blog.csdn.net/qq_35029061/article/details/85478738
+       
         public const int MIN_SUPPLEMENTARY_CODE_POINT = 0x010000;
 
         public static int CharCount(int codePoint)

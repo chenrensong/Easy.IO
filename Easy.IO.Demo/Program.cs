@@ -11,6 +11,7 @@ namespace Easy.IO.Demo
             var source = EasyIO.Source(path);
             var bSource = EasyIO.Buffer(source);
             var str = bSource.ReadByteString();
+            Console.WriteLine(str.Utf8);
             bSource.Dispose();
             var sink = EasyIO.Sink(path);
             var bSink = EasyIO.Buffer(sink);
