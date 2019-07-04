@@ -23,5 +23,27 @@ namespace Easy.Tests
             Assert.AreEqual("Hello, easy.io file!", source.ReadUtf8());
             source.Dispose();
         }
+
+        [Test]
+        public void appendFile()
+        {
+            string tempFile = Path.GetTempFileName();
+            BufferedSink sink = EasyIO.Buffer(EasyIO.Sink(tempFile, FileMode.Append));
+            sink.WriteUtf8("Hello, ");
+            sink.Dispose();
+            Assert.True(File.Exists(tempFile));
+            Assert.AreEqual(7, File.ReadAllText(tempFile).Length);
+
+            sink = EasyIO.Buffer(EasyIO.Sink(tempFile, FileMode.Append));
+            sink.WriteUtf8("easy.io file!");
+            sink.Dispose();
+            Assert.AreEqual(20, File.ReadAllText(tempFile).Length);
+
+            BufferedSource source = EasyIO.Buffer(EasyIO.Source(tempFile));
+            Assert.AreEqual("Hello, easy.io file!", source.ReadUtf8());
+            source.Dispose();
+        }
+
+      
     }
 }

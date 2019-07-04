@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Easy.IO
 {
-    
+
     public partial class EasyIO
     {
         public static BufferedSource Buffer(Source source)
@@ -18,7 +18,7 @@ namespace Easy.IO
             return new RealBufferedSink(sink);
         }
 
-        public static Sink sink(Stream @out)
+        public static Sink Sink(Stream @out)
         {
             return Sink(@out, new Timeout());
         }
@@ -57,7 +57,16 @@ namespace Easy.IO
             {
                 throw new IllegalArgumentException("path == null");
             }
-            return sink(File.OpenWrite(path));
+            return Sink(File.OpenWrite(path));
+        }
+
+        public static Sink Sink(string path, FileMode fileMode)
+        {
+            if (path == null)
+            {
+                throw new IllegalArgumentException("path == null");
+            }
+            return Sink(File.Open(path, fileMode));
         }
 
         private static Source Source(Stream @in, Timeout timeout)
@@ -89,7 +98,7 @@ namespace Easy.IO
             {
                 throw new IllegalArgumentException("file == null");
             }
-            return sink(file.OpenWrite());
+            return Sink(file.OpenWrite());
         }
     }
 }
