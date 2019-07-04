@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Easy.IO
 {
-    class Utf8
+    public class Utf8
     {
         public static long Size(string @string)
         {

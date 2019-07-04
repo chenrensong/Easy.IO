@@ -9,13 +9,13 @@ namespace Easy.IO
         private static object obj = new object();
         /** The maximum number Of bytes to pool. */
         // TODO: Is 64 KiB a good maximum size? Do we ever have that many idle segments?
-        const long MAX_SIZE = 64 * 1024; // 64 KiB.
+        private const long MAX_SIZE = 64 * 1024; // 64 KiB.
 
         /** Singly-linked list Of segments. */
-        static Segment next;
+        private static Segment next;
 
         /** Total bytes in this pool. */
-        static long byteCount;
+        private static long byteCount;
 
         private SegmentPool()
         {
@@ -28,8 +28,8 @@ namespace Easy.IO
                 if (next != null)
                 {
                     var result = next;
-                    next = result.next;
-                    result.next = null;
+                    next = result._next;
+                    result._next = null;
                     byteCount -= Segment.SIZE;
                     return result;
                 }
@@ -39,11 +39,11 @@ namespace Easy.IO
 
         public static void Recycle(Segment segment)
         {
-            if (segment.next != null || segment.prev != null)
+            if (segment._next != null || segment._prev != null)
             {
                 throw new IllegalArgumentException();
             }
-            if (segment.shared)
+            if (segment._shared)
             {
                 return; // This segment cannot be recycled.
             }
@@ -54,8 +54,8 @@ namespace Easy.IO
                     return; // Pool is full.
                 }
                 byteCount += Segment.SIZE;
-                segment.next = next;
-                segment.pos = segment.limit = 0;
+                segment._next = next;
+                segment._pos = segment._limit = 0;
                 next = segment;
             }
         }

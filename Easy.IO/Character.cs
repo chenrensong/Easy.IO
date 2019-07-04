@@ -2,7 +2,7 @@
 
 namespace Easy.IO
 {
-    internal class Character
+    public class Character
     {
        
         public const int MIN_SUPPLEMENTARY_CODE_POINT = 0x010000;

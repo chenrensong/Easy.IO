@@ -11,13 +11,13 @@ namespace Easy.IO
 
         /** A singleton empty {@code ByteString}. */
         public static ByteString EMPTY = ByteString.Of();
-        private byte[] data;
-        private int hashCode; // Lazily computed; 0 if unknown.
-        private string utf8; // Lazily computed.
+        private byte[] _data;
+        private int _hashCode; // Lazily computed; 0 if unknown.
+        private string _utf8; // Lazily computed.
 
         public ByteString(byte[] data)
         {
-            this.data = data; // Trusted internal constructor doesn't clone data.
+            this._data = data; // Trusted internal constructor doesn't clone data.
         }
 
         /**
@@ -56,7 +56,7 @@ namespace Easy.IO
         {
             if (s == null) throw new IllegalArgumentException("s == null");
             ByteString byteString = new ByteString(Util.UTF_8.GetBytes(s));
-            byteString.utf8 = s;
+            byteString._utf8 = s;
             return byteString;
         }
 
@@ -73,9 +73,9 @@ namespace Easy.IO
         {
             get
             {
-                string result = utf8;
+                string result = _utf8;
                 // We don't care if we double-allocate in racy code.
-                return result != null ? result : (utf8 = Util.UTF_8.GetString(data));
+                return result != null ? result : (_utf8 = Util.UTF_8.GetString(_data));
             }
         }
 
@@ -83,7 +83,7 @@ namespace Easy.IO
         public string GetString(Encoding charset)
         {
             if (charset == null) throw new IllegalArgumentException("charset == null");
-            return charset.GetString(data);
+            return charset.GetString(_data);
         }
 
         /**
@@ -93,49 +93,49 @@ namespace Easy.IO
          */
         public string Base64()
         {
-            return IO.Base64.encode(data);
+            return IO.Base64.encode(_data);
         }
 
         /** Returns the 128-bit MD5 hash Of this byte string. */
         public ByteString MD5()
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.MD5);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.MD5);
         }
 
         /** Returns the 160-bit SHA-1 hash Of this byte string. */
         public ByteString SHA1()
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.SHA1);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.SHA1);
         }
 
         /** Returns the 256-bit SHA-256 hash Of this byte string. */
         public ByteString SHA256()
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.SHA256);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.SHA256);
         }
 
         /** Returns the 512-bit SHA-512 hash Of this byte string. */
         public ByteString SHA512()
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.SHA512);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.SHA512);
         }
 
         /** Returns the 160-bit SHA-1 HMAC Of this byte string. */
         public ByteString HMACSha1(ByteString key)
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.HMACSHA1, key);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.HMACSHA1, key);
         }
 
         /** Returns the 256-bit SHA-256 HMAC Of this byte string. */
         public ByteString HMACSHA256(ByteString key)
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.HMACSHA256, key);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.HMACSHA256, key);
         }
 
         /** Returns the 512-bit SHA-512 HMAC Of this byte string. */
         public ByteString HMACSHA512(ByteString key)
         {
-            return AlgorithmHelper.HashByteString(data, Algorithm.HMACSHA512, key);
+            return AlgorithmHelper.HashByteString(_data, Algorithm.HMACSHA512, key);
         }
 
         /**
@@ -144,7 +144,7 @@ namespace Easy.IO
          */
         public string Base64Url()
         {
-            return IO.Base64.encodeUrl(data);
+            return IO.Base64.encodeUrl(_data);
         }
 
         /**
@@ -161,9 +161,9 @@ namespace Easy.IO
         /** Returns this byte string encoded in hexadecimal. */
         public string Hex()
         {
-            char[] result = new char[data.Length * 2];
+            char[] result = new char[_data.Length * 2];
             int c = 0;
-            foreach (var b in data)
+            foreach (var b in _data)
             {
                 result[c++] = HEX_DIGITS[(b >> 4) & 0xf];
                 result[c++] = HEX_DIGITS[b & 0xf];
@@ -223,14 +223,14 @@ namespace Easy.IO
         public ByteString ToAsciiLowercase()
         {
             // Search for an uppercase character. If we don't find one, return this.
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < _data.Length; i++)
             {
-                byte c = data[i];
+                byte c = _data[i];
                 if (c < 'A' || c > 'Z') continue;
 
                 // If we reach this point, this string is not not lowercase. Create and
                 // return a new byte string.
-                byte[] lowercase = data.Copy();
+                byte[] lowercase = _data.Copy();
                 lowercase[i++] = (byte)(c - ('A' - 'a'));
                 for (; i < lowercase.Length; i++)
                 {
@@ -251,14 +251,14 @@ namespace Easy.IO
         public ByteString ToAsciiUppercase()
         {
             // Search for an lowercase character. If we don't find one, return this.
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < _data.Length; i++)
             {
-                byte c = data[i];
+                byte c = _data[i];
                 if (c < 'a' || c > 'z') continue;
 
                 // If we reach this point, this string is not not uppercase. Create and
                 // return a new byte string.
-                byte[] lowercase = data.Copy();
+                byte[] lowercase = _data.Copy();
                 lowercase[i++] = (byte)(c - ('a' - 'A'));
                 for (; i < lowercase.Length; i++)
                 {
@@ -277,7 +277,7 @@ namespace Easy.IO
          */
         public ByteString Substring(int beginIndex)
         {
-            return Substring(beginIndex, data.Length);
+            return Substring(beginIndex, _data.Length);
         }
 
         /**
@@ -288,28 +288,28 @@ namespace Easy.IO
         public ByteString Substring(int beginIndex, int endIndex)
         {
             if (beginIndex < 0) throw new IllegalArgumentException("beginIndex < 0");
-            if (endIndex > data.Length)
+            if (endIndex > _data.Length)
             {
-                throw new IllegalArgumentException("endIndex > Length(" + data.Length + ")");
+                throw new IllegalArgumentException("endIndex > Length(" + _data.Length + ")");
             }
 
             int subLen = endIndex - beginIndex;
             if (subLen < 0) throw new IllegalArgumentException("endIndex < beginIndex");
 
-            if ((beginIndex == 0) && (endIndex == data.Length))
+            if ((beginIndex == 0) && (endIndex == _data.Length))
             {
                 return this;
             }
 
             byte[] copy = new byte[subLen];
-            Array.Copy(data, beginIndex, copy, 0, subLen);
+            Array.Copy(_data, beginIndex, copy, 0, subLen);
             return new ByteString(copy);
         }
 
         /** Returns the byte at {@code pos}. */
         public byte GetByte(int pos)
         {
-            return data[pos];
+            return _data[pos];
         }
 
         /**
@@ -317,7 +317,7 @@ namespace Easy.IO
          */
         public int Size()
         {
-            return data.Length;
+            return _data.Length;
         }
 
         /**
@@ -325,13 +325,13 @@ namespace Easy.IO
          */
         public byte[] ToByteArray()
         {
-            return data;
+            return _data;
         }
 
         /** Returns the bytes Of this string without a defensive copy. Do not mutate! */
         public byte[] InternalArray()
         {
-            return data;
+            return _data;
         }
 
         /**
@@ -339,20 +339,20 @@ namespace Easy.IO
          */
         public ByteBuffer AsByteBuffer()
         {
-            return ByteBuffer.Allocate(data);
+            return ByteBuffer.Allocate(_data);
         }
 
         /** Writes the contents Of this byte string to {@code out}. */
         public void Write(Stream @out)
         {
             if (@out == null) throw new IllegalArgumentException("out == null");
-            @out.Write(data, 0, data.Length);
+            @out.Write(_data, 0, _data.Length);
         }
 
         ///** Writes the contents Of this byte string to {@code buffer}. */
         public void Write(EasyBuffer buffer)
         {
-            buffer.Write(data, 0, data.Length);
+            buffer.Write(_data, 0, _data.Length);
         }
 
         /**
@@ -362,7 +362,7 @@ namespace Easy.IO
          */
         public bool RangeEquals(int offset, ByteString other, int otherOffset, int byteCount)
         {
-            return other.RangeEquals(otherOffset, this.data, offset, byteCount);
+            return other.RangeEquals(otherOffset, this._data, offset, byteCount);
         }
 
         /**
@@ -372,9 +372,9 @@ namespace Easy.IO
          */
         public bool RangeEquals(int offset, byte[] other, int otherOffset, int byteCount)
         {
-            return offset >= 0 && offset <= data.Length - byteCount
+            return offset >= 0 && offset <= _data.Length - byteCount
                 && otherOffset >= 0 && otherOffset <= other.Length - byteCount
-                && Util.ArrayRangeEquals(data, offset, other, otherOffset, byteCount);
+                && Util.ArrayRangeEquals(_data, offset, other, otherOffset, byteCount);
         }
 
         public bool StartsWith(ByteString prefix)
@@ -415,9 +415,9 @@ namespace Easy.IO
         public int IndexOf(byte[] other, int fromIndex)
         {
             fromIndex = Math.Max(fromIndex, 0);
-            for (int i = fromIndex, limit = data.Length - other.Length; i <= limit; i++)
+            for (int i = fromIndex, limit = _data.Length - other.Length; i <= limit; i++)
             {
-                if (Util.ArrayRangeEquals(data, i, other, 0, other.Length))
+                if (Util.ArrayRangeEquals(_data, i, other, 0, other.Length))
                 {
                     return i;
                 }
@@ -442,10 +442,10 @@ namespace Easy.IO
 
         public int LastIndexOf(byte[] other, int fromIndex)
         {
-            fromIndex = Math.Min(fromIndex, data.Length - other.Length);
+            fromIndex = Math.Min(fromIndex, _data.Length - other.Length);
             for (int i = fromIndex; i >= 0; i--)
             {
-                if (Util.ArrayRangeEquals(data, i, other, 0, other.Length))
+                if (Util.ArrayRangeEquals(_data, i, other, 0, other.Length))
                 {
                     return i;
                 }
@@ -458,23 +458,23 @@ namespace Easy.IO
         {
             if (o == this) return true;
             return o is ByteString
-        && ((ByteString)o).Size() == data.Length
-        && ((ByteString)o).RangeEquals(0, data, 0, data.Length);
+        && ((ByteString)o).Size() == _data.Length
+        && ((ByteString)o).RangeEquals(0, _data, 0, _data.Length);
         }
 
         public override int GetHashCode()
         {
-            int result = hashCode;
+            int result = _hashCode;
             if (result != 0)
             {
                 return result;
             }
-            int hc = data.Length;
-            for (int i = 0; i < data.Length; ++i)
+            int hc = _data.Length;
+            for (int i = 0; i < _data.Length; ++i)
             {
-                hc = unchecked(hc * 314159 + data[i]);
+                hc = unchecked(hc * 314159 + _data[i]);
             }
-            result = hashCode = hc;
+            result = _hashCode = hc;
             return result;
         }
 
@@ -499,7 +499,7 @@ namespace Easy.IO
          */
         public override string ToString()
         {
-            if (data.Length == 0)
+            if (_data.Length == 0)
             {
                 return "[size=0]";
             }
@@ -509,9 +509,9 @@ namespace Easy.IO
 
             if (i == -1)
             {
-                return data.Length <= 64
+                return _data.Length <= 64
                     ? "[hex=" + Hex() + "]"
-                    : "[size=" + data.Length + " hex=" + Substring(0, 64).Hex() + "…]";
+                    : "[size=" + _data.Length + " hex=" + Substring(0, 64).Hex() + "…]";
             }
 
             string safeText = text.Substring(0, i)
@@ -519,7 +519,7 @@ namespace Easy.IO
                 .Replace("\n", "\\n")
                 .Replace("\r", "\\r");
             return i < text.Length
-                ? "[size=" + data.Length + " text=" + safeText + "…]"
+                ? "[size=" + _data.Length + " text=" + safeText + "…]"
                 : "[text=" + safeText + "]";
         }
 
@@ -531,7 +531,7 @@ namespace Easy.IO
                 {
                     return i;
                 }
-                c = s.codePointAt(i);
+                c = s.CodePointAt(i);
                 if ((Character.IsISOControl(c) && c != '\n' && c != '\r')
                     || c == EasyBuffer.REPLACEMENT_CHARACTER)
                 {

@@ -6,16 +6,17 @@ namespace Easy.IO
 {
     public static class StringExtensions
     {
-        internal static char charAt(this string str,int index)
+        public static char CharAt(this string str,int index)
         {
             return str[index];
         }
 
-        internal static int length(this string str)
+        public static int Length(this string str)
         {
             return str.Length;
         }
-        internal static int codePointAt(this string str, int index)
+
+        public static int CodePointAt(this string str, int index)
         {
             if (str == null)
             {

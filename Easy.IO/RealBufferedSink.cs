@@ -7,28 +7,28 @@ namespace Easy.IO
 {
     public class RealBufferedSink : BufferedSink
     {
-        private EasyBuffer easyBuffer = new EasyBuffer();
-        private Sink sink;
-        private bool closed = false;
+        private EasyBuffer _easyBuffer = new EasyBuffer();
+        private Sink _sink;
+        private bool _closed = false;
 
         public RealBufferedSink(Sink sink)
         {
-            this.sink = sink;
+            this._sink = sink;
         }
 
         public EasyBuffer Buffer()
         {
-            return easyBuffer;
+            return _easyBuffer;
         }
 
         public void Dispose()
         {
-            if (closed) return;
+            if (_closed) return;
             try
             {
-                if (easyBuffer.Size > 0)
+                if (_easyBuffer.Size > 0)
                 {
-                    sink.Write(easyBuffer, easyBuffer.Size);
+                    _sink.Write(_easyBuffer, _easyBuffer.Size);
                 }
             }
             catch (Exception ex)
@@ -38,39 +38,39 @@ namespace Easy.IO
 
             try
             {
-                sink.Dispose();
+                _sink.Dispose();
             }
             catch (Exception ex)
             {
 
             }
-            closed = true;
+            _closed = true;
         }
 
         public BufferedSink Emit()
         {
-            if (closed) throw new IllegalStateException("closed");
-            long byteCount = easyBuffer.Size;
-            if (byteCount > 0) sink.Write(easyBuffer, byteCount);
+            if (_closed) throw new IllegalStateException("closed");
+            long byteCount = _easyBuffer.Size;
+            if (byteCount > 0) _sink.Write(_easyBuffer, byteCount);
             return this;
         }
 
         public BufferedSink EmitCompleteSegments()
         {
-            if (closed) throw new IllegalStateException("closed");
-            long byteCount = easyBuffer.completeSegmentByteCount();
-            if (byteCount > 0) sink.Write(easyBuffer, byteCount);
+            if (_closed) throw new IllegalStateException("closed");
+            long byteCount = _easyBuffer.completeSegmentByteCount();
+            if (byteCount > 0) _sink.Write(_easyBuffer, byteCount);
             return this;
         }
 
         public void Flush()
         {
-            if (closed) throw new IllegalStateException("closed");
-            if (easyBuffer.Size > 0)
+            if (_closed) throw new IllegalStateException("closed");
+            if (_easyBuffer.Size > 0)
             {
-                sink.Write(easyBuffer, easyBuffer.Size);
+                _sink.Write(_easyBuffer, _easyBuffer.Size);
             }
-            sink.Flush();
+            _sink.Flush();
         }
 
         public Stream OutputStream()
@@ -80,27 +80,27 @@ namespace Easy.IO
 
         public Timeout Timeout()
         {
-            return sink.Timeout();
+            return _sink.Timeout();
         }
 
         public BufferedSink Write(ByteString byteString)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.Write(byteString);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.Write(byteString);
             return EmitCompleteSegments();
         }
 
         public BufferedSink Write(byte[] source)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.Write(source);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.Write(source);
             return EmitCompleteSegments();
         }
 
         public BufferedSink Write(byte[] source, int offset, int byteCount)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.Write(source, offset, byteCount);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.Write(source, offset, byteCount);
             return EmitCompleteSegments();
         }
 
@@ -108,7 +108,7 @@ namespace Easy.IO
         {
             while (byteCount > 0)
             {
-                long read = source.Read(easyBuffer, byteCount);
+                long read = source.Read(_easyBuffer, byteCount);
                 if (read == -1) throw new EOFException();
                 byteCount -= read;
                 EmitCompleteSegments();
@@ -118,8 +118,8 @@ namespace Easy.IO
 
         public void Write(EasyBuffer source, long byteCount)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.Write(source, byteCount);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.Write(source, byteCount);
             EmitCompleteSegments();
         }
 
@@ -127,7 +127,7 @@ namespace Easy.IO
         {
             if (source == null) throw new IllegalArgumentException("source == null");
             long totalBytesRead = 0;
-            for (long readCount; (readCount = source.Read(easyBuffer, Segment.SIZE)) != -1;)
+            for (long readCount; (readCount = source.Read(_easyBuffer, Segment.SIZE)) != -1;)
             {
                 totalBytesRead += readCount;
                 EmitCompleteSegments();
@@ -137,99 +137,99 @@ namespace Easy.IO
 
         public BufferedSink WriteByte(int b)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteByte(b);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteByte(b);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteDecimalLong(long v)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteDecimalLong(v);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteDecimalLong(v);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteHexadecimalUnsignedLong(long v)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteHexadecimalUnsignedLong(v);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteHexadecimalUnsignedLong(v);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteInt(int i)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteInt(i);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteInt(i);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteIntLe(int i)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteIntLe(i);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteIntLe(i);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteLong(long v)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteLong(v);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteLong(v);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteLongLe(long v)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteLongLe(v);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteLongLe(v);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteShort(int s)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteShort(s);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteShort(s);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteShortLe(int s)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteShortLe(s);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteShortLe(s);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteString(string @string, Encoding charset)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteString(@string, charset);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteString(@string, charset);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteString(string @string, int beginIndex, int endIndex, Encoding charset)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteString(@string, beginIndex, endIndex, charset);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteString(@string, beginIndex, endIndex, charset);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteUtf8(string @string)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteUtf8(@string);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteUtf8(@string);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteUtf8(string @string, int beginIndex, int endIndex)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteUtf8(@string, beginIndex, endIndex);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteUtf8(@string, beginIndex, endIndex);
             return EmitCompleteSegments();
         }
 
         public BufferedSink WriteUtf8CodePoint(int codePoint)
         {
-            if (closed) throw new IllegalStateException("closed");
-            easyBuffer.WriteUtf8CodePoint(codePoint);
+            if (_closed) throw new IllegalStateException("closed");
+            _easyBuffer.WriteUtf8CodePoint(codePoint);
             return EmitCompleteSegments();
         }
 

@@ -7,32 +7,32 @@ namespace Easy.IO
 {
     public class RealBufferedSource : BufferedSource
     {
-        private EasyBuffer easyBuffer = new EasyBuffer();
-        private bool closed = false;
-        private Source source;
+        private EasyBuffer _easyBuffer = new EasyBuffer();
+        private bool _closed = false;
+        private Source _source;
 
         public RealBufferedSource(Source source)
         {
-            this.source = source;
+            this._source = source;
         }
 
         public EasyBuffer Buffer()
         {
-            return easyBuffer;
+            return _easyBuffer;
         }
 
         public void Dispose()
         {
-            if (closed) return;
-            closed = true;
-            source.Dispose();
-            easyBuffer.clear();
+            if (_closed) return;
+            _closed = true;
+            _source.Dispose();
+            _easyBuffer.clear();
         }
 
         public bool exhausted()
         {
-            if (closed) throw new IllegalStateException("closed");
-            return easyBuffer.exhausted() && source.Read(easyBuffer, Segment.SIZE) == -1;
+            if (_closed) throw new IllegalStateException("closed");
+            return _easyBuffer.exhausted() && _source.Read(_easyBuffer, Segment.SIZE) == -1;
         }
 
         public long IndexOf(byte b)
@@ -47,7 +47,7 @@ namespace Easy.IO
 
         public long IndexOf(byte b, long fromIndex, long toIndex)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
             if (fromIndex < 0 || toIndex < fromIndex)
             {
                 throw new IllegalArgumentException(
@@ -56,13 +56,13 @@ namespace Easy.IO
 
             while (fromIndex < toIndex)
             {
-                long result = easyBuffer.IndexOf(b, fromIndex, toIndex);
+                long result = _easyBuffer.IndexOf(b, fromIndex, toIndex);
                 if (result != -1L) return result;
 
                 // The byte wasn't in the buffer. Give up if we've already reached our target size or if the
                 // underlying stream is exhausted.
-                long lastBufferSize = easyBuffer.Size;
-                if (lastBufferSize >= toIndex || source.Read(easyBuffer, Segment.SIZE) == -1) return -1L;
+                long lastBufferSize = _easyBuffer.Size;
+                if (lastBufferSize >= toIndex || _source.Read(_easyBuffer, Segment.SIZE) == -1) return -1L;
 
                 // Continue the search from where we left off.
                 fromIndex = Math.Max(fromIndex, lastBufferSize);
@@ -77,15 +77,15 @@ namespace Easy.IO
 
         public long IndexOf(ByteString bytes, long fromIndex)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
 
             while (true)
             {
-                long result = easyBuffer.IndexOf(bytes, fromIndex);
+                long result = _easyBuffer.IndexOf(bytes, fromIndex);
                 if (result != -1) return result;
 
-                long lastBufferSize = easyBuffer.Size;
-                if (source.Read(easyBuffer, Segment.SIZE) == -1) return -1L;
+                long lastBufferSize = _easyBuffer.Size;
+                if (_source.Read(_easyBuffer, Segment.SIZE) == -1) return -1L;
 
                 // Keep searching, picking up from where we left off.
                 fromIndex = Math.Max(fromIndex, lastBufferSize - bytes.Size() + 1);
@@ -99,15 +99,15 @@ namespace Easy.IO
 
         public long IndexOfElement(ByteString targetBytes, long fromIndex)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
 
             while (true)
             {
-                long result = easyBuffer.IndexOfElement(targetBytes, fromIndex);
+                long result = _easyBuffer.IndexOfElement(targetBytes, fromIndex);
                 if (result != -1) return result;
 
-                long lastBufferSize = easyBuffer.Size;
-                if (source.Read(easyBuffer, Segment.SIZE) == -1) return -1L;
+                long lastBufferSize = _easyBuffer.Size;
+                if (_source.Read(_easyBuffer, Segment.SIZE) == -1) return -1L;
 
                 // Keep searching, picking up from where we left off.
                 fromIndex = Math.Max(fromIndex, lastBufferSize);
@@ -126,7 +126,7 @@ namespace Easy.IO
 
         public bool RangeEquals(long offset, ByteString bytes, int bytesOffset, int byteCount)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
 
             if (offset < 0
                 || bytesOffset < 0
@@ -139,7 +139,7 @@ namespace Easy.IO
             {
                 long bufferOffset = offset + i;
                 if (!Request(bufferOffset + 1)) return false;
-                if (easyBuffer.GetByte(bufferOffset) != bytes.GetByte(bytesOffset + i)) return false;
+                if (_easyBuffer.GetByte(bufferOffset) != bytes.GetByte(bytesOffset + i)) return false;
             }
             return true;
         }
@@ -153,30 +153,30 @@ namespace Easy.IO
         {
             Util.CheckOffsetAndCount(sink.Length, offset, byteCount);
 
-            if (easyBuffer.Size == 0)
+            if (_easyBuffer.Size == 0)
             {
-                long read = source.Read(easyBuffer, Segment.SIZE);
+                long read = _source.Read(_easyBuffer, Segment.SIZE);
                 if (read == -1) return -1;
             }
 
-            int toRead = (int)Math.Min(byteCount, easyBuffer.Size);
-            return easyBuffer.Read(sink, offset, toRead);
+            int toRead = (int)Math.Min(byteCount, _easyBuffer.Size);
+            return _easyBuffer.Read(sink, offset, toRead);
         }
 
         public long Read(EasyBuffer sink, long byteCount)
         {
             if (sink == null) throw new IllegalArgumentException("sink == null");
             if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
 
-            if (easyBuffer.Size == 0)
+            if (_easyBuffer.Size == 0)
             {
-                long read = source.Read(easyBuffer, Segment.SIZE);
+                long read = _source.Read(_easyBuffer, Segment.SIZE);
                 if (read == -1) return -1;
             }
 
-            long toRead = Math.Min(byteCount, easyBuffer.Size);
-            return easyBuffer.Read(sink, toRead);
+            long toRead = Math.Min(byteCount, _easyBuffer.Size);
+            return _easyBuffer.Read(sink, toRead);
         }
 
         public long ReadAll(Sink sink)
@@ -184,19 +184,19 @@ namespace Easy.IO
             if (sink == null) throw new IllegalArgumentException("sink == null");
 
             long totalBytesWritten = 0;
-            while (source.Read(easyBuffer, Segment.SIZE) != -1)
+            while (_source.Read(_easyBuffer, Segment.SIZE) != -1)
             {
-                long emitByteCount = easyBuffer.completeSegmentByteCount();
+                long emitByteCount = _easyBuffer.completeSegmentByteCount();
                 if (emitByteCount > 0)
                 {
                     totalBytesWritten += emitByteCount;
-                    sink.Write(easyBuffer, emitByteCount);
+                    sink.Write(_easyBuffer, emitByteCount);
                 }
             }
-            if (easyBuffer.Size > 0)
+            if (_easyBuffer.Size > 0)
             {
-                totalBytesWritten += easyBuffer.Size;
-                sink.Write(easyBuffer, easyBuffer.Size);
+                totalBytesWritten += _easyBuffer.Size;
+                sink.Write(_easyBuffer, _easyBuffer.Size);
             }
             return totalBytesWritten;
         }
@@ -204,31 +204,31 @@ namespace Easy.IO
         public byte ReadByte()
         {
             Require(1);
-            return easyBuffer.ReadByte();
+            return _easyBuffer.ReadByte();
         }
 
         public byte[] ReadByteArray()
         {
-            easyBuffer.WriteAll(source);
-            return easyBuffer.ReadByteArray();
+            _easyBuffer.WriteAll(_source);
+            return _easyBuffer.ReadByteArray();
         }
 
         public byte[] ReadByteArray(long byteCount)
         {
             Require(byteCount);
-            return easyBuffer.ReadByteArray(byteCount);
+            return _easyBuffer.ReadByteArray(byteCount);
         }
 
         public ByteString ReadByteString()
         {
-            easyBuffer.WriteAll(source);
-            return easyBuffer.ReadByteString();
+            _easyBuffer.WriteAll(_source);
+            return _easyBuffer.ReadByteString();
         }
 
         public ByteString ReadByteString(long byteCount)
         {
             Require(byteCount);
-            return easyBuffer.ReadByteString(byteCount);
+            return _easyBuffer.ReadByteString(byteCount);
         }
 
         public long ReadDecimalLong()
@@ -236,7 +236,7 @@ namespace Easy.IO
             Require(1);
             for (int pos = 0; Request(pos + 1); pos++)
             {
-                byte b = easyBuffer.GetByte(pos);
+                byte b = _easyBuffer.GetByte(pos);
                 if ((b < '0' || b > '9') && (pos != 0 || b != '-'))
                 {
                     // Non-digit, or non-leading negative sign.
@@ -248,7 +248,7 @@ namespace Easy.IO
                     break;
                 }
             }
-            return easyBuffer.ReadDecimalLong();
+            return _easyBuffer.ReadDecimalLong();
         }
 
         public void ReadFully(byte[] sink)
@@ -261,15 +261,15 @@ namespace Easy.IO
             {
                 // The underlying source is exhausted. Copy the bytes we got before rethrowing.
                 int offset = 0;
-                while (easyBuffer.Size > 0)
+                while (_easyBuffer.Size > 0)
                 {
-                    int read = easyBuffer.Read(sink, offset, (int)easyBuffer.Size);
+                    int read = _easyBuffer.Read(sink, offset, (int)_easyBuffer.Size);
                     if (read == -1) throw new AssertionException();
                     offset += read;
                 }
                 throw e;
             }
-            easyBuffer.ReadFully(sink);
+            _easyBuffer.ReadFully(sink);
         }
 
         public void ReadFully(EasyBuffer sink, long byteCount)
@@ -281,10 +281,10 @@ namespace Easy.IO
             catch (EOFException e)
             {
                 // The underlying source is exhausted. Copy the bytes we got before rethrowing.
-                sink.WriteAll(easyBuffer);
+                sink.WriteAll(_easyBuffer);
                 throw e;
             }
-            easyBuffer.ReadFully(sink, byteCount);
+            _easyBuffer.ReadFully(sink, byteCount);
         }
 
         public ulong ReadHexadecimalUnsignedLong()
@@ -292,7 +292,7 @@ namespace Easy.IO
             Require(1);
             for (int pos = 0; Request(pos + 1); pos++)
             {
-                byte b = easyBuffer.GetByte(pos);
+                byte b = _easyBuffer.GetByte(pos);
                 if ((b < '0' || b > '9') && (b < 'a' || b > 'f') && (b < 'A' || b > 'F'))
                 {
                     // Non-digit, or non-leading negative sign.
@@ -304,77 +304,77 @@ namespace Easy.IO
                     break;
                 }
             }
-            return easyBuffer.ReadHexadecimalUnsignedLong();
+            return _easyBuffer.ReadHexadecimalUnsignedLong();
         }
 
         public int ReadInt()
         {
             Require(4);
-            return easyBuffer.ReadInt();
+            return _easyBuffer.ReadInt();
         }
 
         public int ReadIntLe()
         {
             Require(4);
-            return easyBuffer.ReadIntLe();
+            return _easyBuffer.ReadIntLe();
         }
 
         public long ReadLong()
         {
             Require(8);
-            return easyBuffer.ReadLong();
+            return _easyBuffer.ReadLong();
         }
 
         public long ReadLongLe()
         {
             Require(8);
-            return easyBuffer.ReadLongLe();
+            return _easyBuffer.ReadLongLe();
         }
 
         public short ReadShort()
         {
             Require(2);
-            return easyBuffer.ReadShort();
+            return _easyBuffer.ReadShort();
         }
 
         public short ReadShortLe()
         {
             Require(2);
-            return easyBuffer.ReadShortLe();
+            return _easyBuffer.ReadShortLe();
         }
 
         public string ReadString(Encoding charset)
         {
             if (charset == null) throw new IllegalArgumentException("charset == null");
 
-            easyBuffer.WriteAll(source);
-            return easyBuffer.ReadString(charset);
+            _easyBuffer.WriteAll(_source);
+            return _easyBuffer.ReadString(charset);
         }
 
         public string ReadString(long byteCount, Encoding charset)
         {
             Require(byteCount);
             if (charset == null) throw new IllegalArgumentException("charset == null");
-            return easyBuffer.ReadString(byteCount, charset);
+            return _easyBuffer.ReadString(byteCount, charset);
         }
 
         public string ReadUtf8()
         {
-            easyBuffer.WriteAll(source);
-            return easyBuffer.ReadUtf8();
+            _easyBuffer.WriteAll(_source);
+            return _easyBuffer.ReadUtf8();
         }
 
         public string ReadUtf8(long byteCount)
         {
             Require(byteCount);
-            return easyBuffer.ReadUtf8(byteCount);
+            return _easyBuffer.ReadUtf8(byteCount);
         }
 
         public int ReadUtf8CodePoint()
         {
             Require(1);
 
-            byte b0 = easyBuffer.GetByte(0);
+            byte b0 = _easyBuffer.GetByte(0);
             if ((b0 & 0xe0) == 0xc0)
             {
                 Require(2);
@@ -388,7 +388,7 @@ namespace Easy.IO
                 Require(4);
             }
 
-            return easyBuffer.ReadUtf8CodePoint();
+            return _easyBuffer.ReadUtf8CodePoint();
         }
 
         public string ReadUtf8Line()
@@ -396,9 +396,9 @@ namespace Easy.IO
             long newline = IndexOf((byte)'\n');
             if (newline == -1)
             {
-                return easyBuffer.Size != 0 ? ReadUtf8(easyBuffer.Size) : null;
+                return _easyBuffer.Size != 0 ? ReadUtf8(_easyBuffer.Size) : null;
             }
-            return easyBuffer.readUtf8Line(newline);
+            return _easyBuffer.readUtf8Line(newline);
         }
 
         public string ReadUtf8LineStrict()
@@ -411,26 +411,26 @@ namespace Easy.IO
             if (limit < 0) throw new IllegalArgumentException("limit < 0: " + limit);
             long scanLength = limit == long.MaxValue ? long.MaxValue : limit + 1;
             long newline = IndexOf((byte)'\n', 0, scanLength);
-            if (newline != -1) return easyBuffer.readUtf8Line(newline);
+            if (newline != -1) return _easyBuffer.readUtf8Line(newline);
             if (scanLength < long.MaxValue
-                && Request(scanLength) && easyBuffer.GetByte(scanLength - 1) == '\r'
-                && Request(scanLength + 1) && easyBuffer.GetByte(scanLength) == '\n')
+                && Request(scanLength) && _easyBuffer.GetByte(scanLength - 1) == '\r'
+                && Request(scanLength + 1) && _easyBuffer.GetByte(scanLength) == '\n')
             {
-                return easyBuffer.readUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
+                return _easyBuffer.readUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
             }
             var data = new EasyBuffer();
-            easyBuffer.copyTo(data, 0, Math.Min(32, easyBuffer.Size));
-            throw new EOFException("\\n not found: limit=" + Math.Min(easyBuffer.Size, limit)
+            _easyBuffer.CopyTo(data, 0, Math.Min(32, _easyBuffer.Size));
+            throw new EOFException("\\n not found: limit=" + Math.Min(_easyBuffer.Size, limit)
                 + " content=" + data.ReadByteString().Hex() + '…');
         }
 
         public bool Request(long byteCount)
         {
             if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
-            if (closed) throw new IllegalStateException("closed");
-            while (easyBuffer.Size < byteCount)
+            if (_closed) throw new IllegalStateException("closed");
+            while (_easyBuffer.Size < byteCount)
             {
-                if (source.Read(easyBuffer, Segment.SIZE) == -1) return false;
+                if (_source.Read(_easyBuffer, Segment.SIZE) == -1) return false;
             }
             return true;
         }
@@ -442,22 +442,22 @@ namespace Easy.IO
 
         public int Select(Options options)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
 
             while (true)
             {
-                int index = easyBuffer.selectPrefix(options, true);
+                int index = _easyBuffer.SelectPrefix(options, true);
                 if (index == -1) return -1;
                 if (index == -2)
                 {
                     // We need to grow the buffer. Do that, then try it all again.
-                    if (source.Read(easyBuffer, Segment.SIZE) == -1L) return -1;
+                    if (_source.Read(_easyBuffer, Segment.SIZE) == -1L) return -1;
                 }
                 else
                 {
                     // We matched a full byte string: consume it and return it.
-                    int selectedSize = options.byteStrings[index].Size();
-                    easyBuffer.Skip(selectedSize);
+                    int selectedSize = options._byteStrings[index].Size();
+                    _easyBuffer.Skip(selectedSize);
                     return index;
                 }
             }
@@ -465,22 +465,22 @@ namespace Easy.IO
 
         public void Skip(long byteCount)
         {
-            if (closed) throw new IllegalStateException("closed");
+            if (_closed) throw new IllegalStateException("closed");
             while (byteCount > 0)
             {
-                if (easyBuffer.Size == 0 && source.Read(easyBuffer, Segment.SIZE) == -1)
+                if (_easyBuffer.Size == 0 && _source.Read(_easyBuffer, Segment.SIZE) == -1)
                 {
                     throw new EOFException();
                 }
-                long toSkip = Math.Min(byteCount, easyBuffer.Size);
-                easyBuffer.Skip(toSkip);
+                long toSkip = Math.Min(byteCount, _easyBuffer.Size);
+                _easyBuffer.Skip(toSkip);
                 byteCount -= toSkip;
             }
         }
 
         public Timeout Timeout()
         {
-            return source.Timeout();
+            return _source.Timeout();
         }
 
 

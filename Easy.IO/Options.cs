@@ -5,13 +5,13 @@ namespace Easy.IO
 {
     public class Options : List<ByteString>
     {
-        internal ByteString[] byteStrings;
-        internal int[] trie;
+        internal ByteString[] _byteStrings;
+        internal int[] _trie;
 
         private Options(ByteString[] byteStrings, int[] trie)
         {
-            this.byteStrings = byteStrings;
-            this.trie = trie;
+            this._byteStrings = byteStrings;
+            this._trie = trie;
         }
 
         public static Options Of(params ByteString[] byteStrings)
@@ -262,7 +262,7 @@ namespace Easy.IO
         {
             get
             {
-                return byteStrings[i];
+                return _byteStrings[i];
             }
         }
 
@@ -271,7 +271,7 @@ namespace Easy.IO
         {
             get
             {
-                return byteStrings.Length;
+                return _byteStrings.Length;
             }
         }
 

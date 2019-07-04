@@ -8,6 +8,7 @@ namespace Easy.IO
     public class EasyStream : Stream
     {
         private EasyBuffer _easyBuffer;
+
         public EasyStream(EasyBuffer easyBuffer)
         {
             _easyBuffer = easyBuffer;
@@ -39,7 +40,6 @@ namespace Easy.IO
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-
             return _easyBuffer.Read(buffer, offset, count);
         }
 
