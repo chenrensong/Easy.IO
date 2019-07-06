@@ -28,8 +28,8 @@ namespace Easy.IO
                 if (next != null)
                 {
                     var result = next;
-                    next = result._next;
-                    result._next = null;
+                    next = result.Next;
+                    result.Next = null;
                     byteCount -= Segment.SIZE;
                     return result;
                 }
@@ -39,11 +39,11 @@ namespace Easy.IO
 
         public static void Recycle(Segment segment)
         {
-            if (segment._next != null || segment._prev != null)
+            if (segment.Next != null || segment.Prev != null)
             {
                 throw new IllegalArgumentException();
             }
-            if (segment._shared)
+            if (segment.Shared)
             {
                 return; // This segment cannot be recycled.
             }
@@ -54,8 +54,8 @@ namespace Easy.IO
                     return; // Pool is full.
                 }
                 byteCount += Segment.SIZE;
-                segment._next = next;
-                segment._pos = segment._limit = 0;
+                segment.Next = next;
+                segment.Pos = segment.Limit = 0;
                 next = segment;
             }
         }

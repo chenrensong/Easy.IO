@@ -36,14 +36,14 @@ namespace Easy.IO
                 {
                     _timeout.ThrowIfReached();
                     Segment head = source.Head;
-                    int toCopy = (int)Math.Min(byteCount, head._limit - head._pos);
-                    _out.Write(head._data, head._pos, toCopy);
+                    int toCopy = (int)Math.Min(byteCount, head.Limit - head.Pos);
+                    _out.Write(head.Data, head.Pos, toCopy);
 
-                    head._pos += toCopy;
+                    head.Pos += toCopy;
                     byteCount -= toCopy;
                     source.Size -= toCopy;
 
-                    if (head._pos == head._limit)
+                    if (head.Pos == head.Limit)
                     {
                         source.Head = head.Pop();
                         SegmentPool.Recycle(head);

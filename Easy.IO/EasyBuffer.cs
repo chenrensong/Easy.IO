@@ -60,10 +60,10 @@ namespace Easy.IO
             long result = _size;
             if (result == 0) return 0;
             // Omit the tail if it's still writable.
-            Segment tail = _head._prev;
-            if (tail._limit < Segment.SIZE && tail._owner)
+            Segment tail = _head.Prev;
+            if (tail.Limit < Segment.SIZE && tail.Owner)
             {
-                result -= tail._limit - tail._pos;
+                result -= tail.Limit - tail.Pos;
             }
             return result;
         }
@@ -91,11 +91,11 @@ namespace Easy.IO
             {
                 Segment tail = WritableSegment(1);
 
-                int toCopy = Math.Min(limit - offset, Segment.SIZE - tail._limit);
-                Array.Copy(source, offset, tail._data, tail._limit, toCopy);
+                int toCopy = Math.Min(limit - offset, Segment.SIZE - tail.Limit);
+                Array.Copy(source, offset, tail.Data, tail.Limit, toCopy);
 
                 offset += toCopy;
-                tail._limit += toCopy;
+                tail.Limit += toCopy;
             }
 
             _size += byteCount;
@@ -154,8 +154,8 @@ namespace Easy.IO
                 if (c < 0x80)
                 {
                     Segment tail = WritableSegment(1);
-                    byte[] data = tail._data;
-                    int segmentOffset = tail._limit - i;
+                    byte[] data = tail.Data;
+                    int segmentOffset = tail.Limit - i;
                     int runLimit = Math.Min(endIndex, Segment.SIZE - segmentOffset);
 
                     // Emit a 7-bit character with 1 byte.
@@ -170,8 +170,8 @@ namespace Easy.IO
                         data[segmentOffset + i++] = (byte)c; // 0xxxxxxx
                     }
 
-                    int runSize = i + segmentOffset - tail._limit; // Equivalent to i - (previous i).
-                    tail._limit += runSize;
+                    int runSize = i + segmentOffset - tail.Limit; // Equivalent to i - (previous i).
+                    tail.Limit += runSize;
                     _size += runSize;
 
                 }
@@ -299,7 +299,7 @@ namespace Easy.IO
         public EasyBuffer WriteByte(int b)
         {
             Segment tail = WritableSegment(1);
-            tail._data[tail._limit++] = (byte)b;
+            tail.Data[tail.Limit++] = (byte)b;
             _size += 1;
             return this;
         }
@@ -307,11 +307,11 @@ namespace Easy.IO
         public EasyBuffer WriteShort(int s)
         {
             Segment tail = WritableSegment(2);
-            byte[] data = tail._data;
-            int limit = tail._limit;
+            byte[] data = tail.Data;
+            int limit = tail.Limit;
             data[limit++] = (byte)((s >> 8) & 0xff);
             data[limit++] = (byte)(s & 0xff);
-            tail._limit = limit;
+            tail.Limit = limit;
             _size += 2;
             return this;
         }
@@ -324,13 +324,13 @@ namespace Easy.IO
         public EasyBuffer WriteInt(int i)
         {
             Segment tail = WritableSegment(4);
-            byte[] data = tail._data;
-            int limit = tail._limit;
+            byte[] data = tail.Data;
+            int limit = tail.Limit;
             data[limit++] = (byte)((i >> 24) & 0xff);
             data[limit++] = (byte)((i >> 16) & 0xff);
             data[limit++] = (byte)((i >> 8) & 0xff);
             data[limit++] = (byte)(i & 0xff);
-            tail._limit = limit;
+            tail.Limit = limit;
             _size += 4;
             return this;
         }
@@ -343,8 +343,8 @@ namespace Easy.IO
         public EasyBuffer WriteLong(long v)
         {
             Segment tail = WritableSegment(8);
-            byte[] data = tail._data;
-            int limit = tail._limit;
+            byte[] data = tail.Data;
+            int limit = tail.Limit;
             data[limit++] = (byte)((v >> 56) & 0xff);
             data[limit++] = (byte)((v >> 48) & 0xff);
             data[limit++] = (byte)((v >> 40) & 0xff);
@@ -353,7 +353,7 @@ namespace Easy.IO
             data[limit++] = (byte)((v >> 16) & 0xff);
             data[limit++] = (byte)((v >> 8) & 0xff);
             data[limit++] = (byte)(v & 0xff);
-            tail._limit = limit;
+            tail.Limit = limit;
             _size += 8;
             return this;
         }
@@ -408,8 +408,8 @@ namespace Easy.IO
             }
 
             Segment tail = WritableSegment(width);
-            byte[] data = tail._data;
-            int pos = tail._limit + width; // We write backwards from right to left.
+            byte[] data = tail.Data;
+            int pos = tail.Limit + width; // We write backwards from right to left.
             while (v != 0)
             {
                 int digit = (int)(v % 10);
@@ -421,7 +421,7 @@ namespace Easy.IO
                 data[--pos] = (byte)'-';
             }
 
-            tail._limit += width;
+            tail.Limit += width;
             this._size += width;
             return this;
         }
@@ -526,11 +526,11 @@ namespace Easy.IO
             while (byteCount > 0)
             {
                 // Is a prefix Of the source's head segment all that we need to move?
-                if (byteCount < (source._head._limit - source._head._pos))
+                if (byteCount < (source._head.Limit - source._head.Pos))
                 {
-                    Segment tail = _head != null ? _head._prev : null;
-                    if (tail != null && tail._owner
-                        && (byteCount + tail._limit - (tail._shared ? 0 : tail._pos) <= Segment.SIZE))
+                    Segment tail = _head != null ? _head.Prev : null;
+                    if (tail != null && tail.Owner
+                        && (byteCount + tail.Limit - (tail.Shared ? 0 : tail.Pos) <= Segment.SIZE))
                     {
                         // Our existing segments are sufficient. Move bytes from source's head to our tail.
                         source._head.WriteTo(tail, (int)byteCount);
@@ -548,16 +548,16 @@ namespace Easy.IO
 
                 // Remove the source's head segment and append it to our tail.
                 Segment segmentToMove = source._head;
-                long movedByteCount = segmentToMove._limit - segmentToMove._pos;
+                long movedByteCount = segmentToMove.Limit - segmentToMove.Pos;
                 source._head = segmentToMove.Pop();
                 if (_head == null)
                 {
                     _head = segmentToMove;
-                    _head._next = _head._prev = _head;
+                    _head.Next = _head.Prev = _head;
                 }
                 else
                 {
-                    Segment tail = _head._prev;
+                    Segment tail = _head.Prev;
                     tail = tail.Push(segmentToMove);
                     tail.Compact();
                 }
@@ -600,10 +600,10 @@ namespace Easy.IO
             if (_size == 0) throw new IllegalStateException("size == 0");
 
             Segment segment = _head;
-            int pos = segment._pos;
-            int limit = segment._limit;
+            int pos = segment.Pos;
+            int limit = segment.Limit;
 
-            byte[] data = segment._data;
+            byte[] data = segment.Data;
             byte b = data[pos++];
             _size -= 1;
 
@@ -614,7 +614,7 @@ namespace Easy.IO
             }
             else
             {
-                segment._pos = pos;
+                segment.Pos = pos;
             }
 
             return b;
@@ -625,8 +625,8 @@ namespace Easy.IO
             if (_size < 2) throw new IllegalStateException("size < 2: " + _size);
 
             Segment segment = _head;
-            int pos = segment._pos;
-            int limit = segment._limit;
+            int pos = segment.Pos;
+            int limit = segment.Limit;
 
             // If the short is split across multiple segments, delegate to readByte().
             if (limit - pos < 2)
@@ -636,7 +636,7 @@ namespace Easy.IO
                 return (short)ss;
             }
 
-            byte[] data = segment._data;
+            byte[] data = segment.Data;
             int s = (data[pos++] & 0xff) << 8
                 | (data[pos++] & 0xff);
             _size -= 2;
@@ -648,7 +648,7 @@ namespace Easy.IO
             }
             else
             {
-                segment._pos = pos;
+                segment.Pos = pos;
             }
 
             return (short)s;
@@ -664,8 +664,8 @@ namespace Easy.IO
             if (_size < 4) throw new IllegalStateException("size < 4: " + _size);
 
             Segment segment = _head;
-            int pos = segment._pos;
-            int limit = segment._limit;
+            int pos = segment.Pos;
+            int limit = segment.Limit;
 
             // If the int is split across multiple segments, delegate to readByte().
             if (limit - pos < 4)
@@ -676,7 +676,7 @@ namespace Easy.IO
                     | (ReadByte() & 0xff);
             }
 
-            byte[] data = segment._data;
+            byte[] data = segment.Data;
             int i = (data[pos++] & 0xff) << 24
                 | (data[pos++] & 0xff) << 16
                 | (data[pos++] & 0xff) << 8
@@ -690,7 +690,7 @@ namespace Easy.IO
             }
             else
             {
-                segment._pos = pos;
+                segment.Pos = pos;
             }
 
             return i;
@@ -706,8 +706,8 @@ namespace Easy.IO
             if (_size < 8) throw new IllegalStateException("size < 8: " + _size);
 
             Segment segment = _head;
-            int pos = segment._pos;
-            int limit = segment._limit;
+            int pos = segment.Pos;
+            int limit = segment.Limit;
 
             // If the long is split across multiple segments, delegate to readInt().
             if (limit - pos < 8)
@@ -716,7 +716,7 @@ namespace Easy.IO
                     | (ReadInt() & 0xffffffffL);
             }
 
-            byte[] data = segment._data;
+            byte[] data = segment.Data;
             long v = (data[pos++] & 0xffL) << 56
                 | (data[pos++] & 0xffL) << 48
                 | (data[pos++] & 0xffL) << 40
@@ -734,7 +734,7 @@ namespace Easy.IO
             }
             else
             {
-                segment._pos = pos;
+                segment.Pos = pos;
             }
 
             return v;
@@ -762,9 +762,9 @@ namespace Easy.IO
             {
                 Segment segment = _head;
 
-                byte[] data = segment._data;
-                int pos = segment._pos;
-                int limit = segment._limit;
+                byte[] data = segment.Data;
+                int pos = segment.Pos;
+                int limit = segment.Limit;
 
                 for (; pos < limit; pos++, seen++)
                 {
@@ -808,7 +808,7 @@ namespace Easy.IO
                 }
                 else
                 {
-                    segment._pos = pos;
+                    segment.Pos = pos;
                 }
             } while (!done && _head != null);
 
@@ -828,9 +828,9 @@ namespace Easy.IO
             {
                 Segment segment = _head;
 
-                byte[] data = segment._data;
-                int pos = segment._pos;
-                int limit = segment._limit;
+                byte[] data = segment.Data;
+                int pos = segment.Pos;
+                int limit = segment.Limit;
 
                 for (; pos < limit; pos++, seen++)
                 {
@@ -879,7 +879,7 @@ namespace Easy.IO
                 }
                 else
                 {
-                    segment._pos = pos;
+                    segment.Pos = pos;
                 }
             } while (!done && _head != null);
 
@@ -893,12 +893,12 @@ namespace Easy.IO
             {
                 if (_head == null) throw new EOFException();
 
-                int toSkip = (int)Math.Min(byteCount, _head._limit - _head._pos);
+                int toSkip = (int)Math.Min(byteCount, _head.Limit - _head.Pos);
                 _size -= toSkip;
                 byteCount -= toSkip;
-                _head._pos += toSkip;
+                _head.Pos += toSkip;
 
-                if (_head._pos == _head._limit)
+                if (_head.Pos == _head.Limit)
                 {
                     Segment toRecycle = _head;
                     _head = toRecycle.Pop();
@@ -976,13 +976,13 @@ namespace Easy.IO
 
             Segment s = _head;
             if (s == null) return -1;
-            int toCopy = Math.Min(byteCount, s._limit - s._pos);
-            Array.Copy(s._data, s._pos, sink, offset, toCopy);
+            int toCopy = Math.Min(byteCount, s.Limit - s.Pos);
+            Array.Copy(s.Data, s.Pos, sink, offset, toCopy);
 
-            s._pos += toCopy;
+            s.Pos += toCopy;
             _size -= toCopy;
 
-            if (s._pos == s._limit)
+            if (s.Pos == s.Limit)
             {
                 _head = s.Pop();
                 SegmentPool.Recycle(s);
@@ -1055,20 +1055,20 @@ namespace Easy.IO
             Util.CheckOffsetAndCount(_size, pos, 1);
             if (_size - pos > pos)
             {
-                for (Segment s = _head; true; s = s._next)
+                for (Segment s = _head; true; s = s.Next)
                 {
-                    int segmentByteCount = s._limit - s._pos;
-                    if (pos < segmentByteCount) return s._data[s._pos + (int)pos];
+                    int segmentByteCount = s.Limit - s.Pos;
+                    if (pos < segmentByteCount) return s.Data[s.Pos + (int)pos];
                     pos -= segmentByteCount;
                 }
             }
             else
             {
                 pos -= _size;
-                for (Segment s = _head._prev; true; s = s._prev)
+                for (Segment s = _head.Prev; true; s = s.Prev)
                 {
-                    pos += s._limit - s._pos;
-                    if (pos >= 0) return s._data[s._pos + (int)pos];
+                    pos += s.Limit - s.Pos;
+                    if (pos >= 0) return s.Data[s.Pos + (int)pos];
                 }
             }
         }
@@ -1204,16 +1204,16 @@ namespace Easy.IO
             if (byteCount == 0) return "";
 
             Segment s = _head;
-            if (s._pos + byteCount > s._limit)
+            if (s.Pos + byteCount > s.Limit)
             {
                 // If the string spans multiple segments, delegate to readBytes().
                 return charset.GetString(ReadByteArray(byteCount));
             }
-            string result = charset.GetString(s._data, s._pos, (int)byteCount);
-            s._pos += (int)byteCount;
+            string result = charset.GetString(s.Data, s.Pos, (int)byteCount);
+            s.Pos += (int)byteCount;
             _size -= byteCount;
 
-            if (s._pos == s._limit)
+            if (s.Pos == s.Limit)
             {
                 _head = s.Pop();
                 SegmentPool.Recycle(s);
@@ -1262,17 +1262,17 @@ namespace Easy.IO
                     offset = _size;
                     while (offset > fromIndex)
                     {
-                        s = s._prev;
-                        offset -= (s._limit - s._pos);
+                        s = s.Prev;
+                        offset -= (s.Limit - s.Pos);
                     }
                 }
                 else
                 {
                     // We're scanning in the front half Of this buffer. Find the segment starting at the front.
                     offset = 0L;
-                    for (long nextOffset; (nextOffset = offset + (s._limit - s._pos)) < fromIndex;)
+                    for (long nextOffset; (nextOffset = offset + (s.Limit - s.Pos)) < fromIndex;)
                     {
-                        s = s._next;
+                        s = s.Next;
                         offset = nextOffset;
                     }
                 }
@@ -1281,21 +1281,21 @@ namespace Easy.IO
             // Scan through the segments, searching for b.
             while (offset < toIndex)
             {
-                byte[] data = s._data;
-                int limit = (int)Math.Min(s._limit, s._pos + toIndex - offset);
-                int pos = (int)(s._pos + fromIndex - offset);
+                byte[] data = s.Data;
+                int limit = (int)Math.Min(s.Limit, s.Pos + toIndex - offset);
+                int pos = (int)(s.Pos + fromIndex - offset);
                 for (; pos < limit; pos++)
                 {
                     if (data[pos] == b)
                     {
-                        return pos - s._pos + offset;
+                        return pos - s.Pos + offset;
                     }
                 }
 
                 // Not in this segment. Try the next one.
-                offset += (s._limit - s._pos);
+                offset += (s.Limit - s.Pos);
                 fromIndex = offset;
-                s = s._next;
+                s = s.Next;
             }
 
             return -1L;
@@ -1330,17 +1330,17 @@ namespace Easy.IO
                     offset = _size;
                     while (offset > fromIndex)
                     {
-                        s = s._prev;
-                        offset -= (s._limit - s._pos);
+                        s = s.Prev;
+                        offset -= (s.Limit - s.Pos);
                     }
                 }
                 else
                 {
                     // We're scanning in the front half Of this buffer. Find the segment starting at the front.
                     offset = 0L;
-                    for (long nextOffset; (nextOffset = offset + (s._limit - s._pos)) < fromIndex;)
+                    for (long nextOffset; (nextOffset = offset + (s.Limit - s.Pos)) < fromIndex;)
                     {
-                        s = s._next;
+                        s = s.Next;
                         offset = nextOffset;
                     }
                 }
@@ -1354,20 +1354,20 @@ namespace Easy.IO
             while (offset < resultLimit)
             {
                 // Scan through the current segment.
-                byte[] data = s._data;
-                int segmentLimit = (int)Math.Min(s._limit, s._pos + resultLimit - offset);
-                for (int pos = (int)(s._pos + fromIndex - offset); pos < segmentLimit; pos++)
+                byte[] data = s.Data;
+                int segmentLimit = (int)Math.Min(s.Limit, s.Pos + resultLimit - offset);
+                for (int pos = (int)(s.Pos + fromIndex - offset); pos < segmentLimit; pos++)
                 {
                     if (data[pos] == b0 && RangeEquals(s, pos + 1, bytes, 1, bytesSize))
                     {
-                        return pos - s._pos + offset;
+                        return pos - s.Pos + offset;
                     }
                 }
 
                 // Not in this segment. Try the next one.
-                offset += (s._limit - s._pos);
+                offset += (s.Limit - s.Pos);
                 fromIndex = offset;
-                s = s._next;
+                s = s.Next;
             }
 
             return -1L;
@@ -1401,17 +1401,17 @@ namespace Easy.IO
                     offset = _size;
                     while (offset > fromIndex)
                     {
-                        s = s._prev;
-                        offset -= (s._limit - s._pos);
+                        s = s.Prev;
+                        offset -= (s.Limit - s.Pos);
                     }
                 }
                 else
                 {
                     // We're scanning in the front half Of this buffer. Find the segment starting at the front.
                     offset = 0L;
-                    for (long nextOffset; (nextOffset = offset + (s._limit - s._pos)) < fromIndex;)
+                    for (long nextOffset; (nextOffset = offset + (s.Limit - s.Pos)) < fromIndex;)
                     {
-                        s = s._next;
+                        s = s.Next;
                         offset = nextOffset;
                     }
                 }
@@ -1427,20 +1427,20 @@ namespace Easy.IO
                 byte b1 = targetBytes.GetByte(1);
                 while (offset < _size)
                 {
-                    byte[] data = s._data;
-                    for (int pos = (int)(s._pos + fromIndex - offset), limit = s._limit; pos < limit; pos++)
+                    byte[] data = s.Data;
+                    for (int pos = (int)(s.Pos + fromIndex - offset), limit = s.Limit; pos < limit; pos++)
                     {
                         int b = data[pos];
                         if (b == b0 || b == b1)
                         {
-                            return pos - s._pos + offset;
+                            return pos - s.Pos + offset;
                         }
                     }
 
                     // Not in this segment. Try the next one.
-                    offset += (s._limit - s._pos);
+                    offset += (s.Limit - s.Pos);
                     fromIndex = offset;
-                    s = s._next;
+                    s = s.Next;
                 }
             }
             else
@@ -1449,20 +1449,20 @@ namespace Easy.IO
                 byte[] targetByteArray = targetBytes.InternalArray();
                 while (offset < _size)
                 {
-                    byte[] data = s._data;
-                    for (int pos = (int)(s._pos + fromIndex - offset), limit = s._limit; pos < limit; pos++)
+                    byte[] data = s.Data;
+                    for (int pos = (int)(s.Pos + fromIndex - offset), limit = s.Limit; pos < limit; pos++)
                     {
                         int b = data[pos];
                         foreach (var t in targetByteArray)
                         {
-                            if (b == t) return pos - s._pos + offset;
+                            if (b == t) return pos - s.Pos + offset;
                         }
                     }
 
                     // Not in this segment. Try the next one.
-                    offset += (s._limit - s._pos);
+                    offset += (s.Limit - s.Pos);
                     fromIndex = offset;
-                    s = s._next;
+                    s = s.Next;
                 }
             }
 
@@ -1516,10 +1516,10 @@ namespace Easy.IO
             if (_head == null)
             {
                 _head = SegmentPool.Take(); // Acquire a first segment.
-                return _head._next = _head._prev = _head;
+                return _head.Next = _head.Prev = _head;
             }
-            Segment tail = _head._prev;
-            if (tail._limit + minimumCapacity > Segment.SIZE || !tail._owner)
+            Segment tail = _head.Prev;
+            if (tail.Limit + minimumCapacity > Segment.SIZE || !tail.Owner)
             {
                 tail = tail.Push(SegmentPool.Take()); // Append a new empty segment to fill up.
             }
@@ -1543,17 +1543,17 @@ namespace Easy.IO
 
             // Skip segments that we aren't copying from.
             Segment s = _head;
-            for (; offset >= (s._limit - s._pos); s = s._next)
+            for (; offset >= (s.Limit - s.Pos); s = s.Next)
             {
-                offset -= (s._limit - s._pos);
+                offset -= (s.Limit - s.Pos);
             }
 
             // Copy from one segment at a time.
-            for (; byteCount > 0; s = s._next)
+            for (; byteCount > 0; s = s.Next)
             {
-                int pos = (int)(s._pos + offset);
-                int toCopy = (int)Math.Min(s._limit - pos, byteCount);
-                @out.Write(s._data, pos, toCopy);
+                int pos = (int)(s.Pos + offset);
+                int toCopy = (int)Math.Min(s.Limit - pos, byteCount);
+                @out.Write(s.Data, pos, toCopy);
                 byteCount -= toCopy;
                 offset = 0;
             }
@@ -1574,26 +1574,26 @@ namespace Easy.IO
 
             // Skip segments that we aren't copying from.
             Segment s = _head;
-            for (; offset >= (s._limit - s._pos); s = s._next)
+            for (; offset >= (s.Limit - s.Pos); s = s.Next)
             {
-                offset -= (s._limit - s._pos);
+                offset -= (s.Limit - s.Pos);
             }
 
             // Copy one segment at a time.
-            for (; byteCount > 0; s = s._next)
+            for (; byteCount > 0; s = s.Next)
             {
                 Segment copy = s.SharedCopy();
-                copy._pos += (int)offset;
-                copy._limit = Math.Min(copy._pos + (int)byteCount, copy._limit);
+                copy.Pos += (int)offset;
+                copy.Limit = Math.Min(copy.Pos + (int)byteCount, copy.Limit);
                 if (@out._head == null)
                 {
-                    @out._head = copy._next = copy._prev = copy;
+                    @out._head = copy.Next = copy.Prev = copy;
                 }
                 else
                 {
-                    @out._head._prev.Push(copy);
+                    @out._head.Prev.Push(copy);
                 }
-                byteCount -= copy._limit - copy._pos;
+                byteCount -= copy.Limit - copy.Pos;
                 offset = 0;
             }
 
@@ -1612,17 +1612,17 @@ namespace Easy.IO
         private bool RangeEquals(
             Segment segment, int segmentPos, ByteString bytes, int bytesOffset, int bytesLimit)
         {
-            int segmentLimit = segment._limit;
-            byte[] data = segment._data;
+            int segmentLimit = segment.Limit;
+            byte[] data = segment.Data;
 
             for (int i = bytesOffset; i < bytesLimit;)
             {
                 if (segmentPos == segmentLimit)
                 {
-                    segment = segment._next;
-                    data = segment._data;
-                    segmentPos = segment._pos;
-                    segmentLimit = segment._limit;
+                    segment = segment.Next;
+                    data = segment.Data;
+                    segmentPos = segment.Pos;
+                    segmentLimit = segment.Limit;
                 }
 
                 if (data[segmentPos] != bytes.GetByte(i))
@@ -1660,9 +1660,9 @@ namespace Easy.IO
             }
 
             Segment s = head;
-            byte[] data = head._data;
-            int pos = head._pos;
-            int limit = head._limit;
+            byte[] data = head.Data;
+            int pos = head.Pos;
+            int limit = head.Limit;
 
             int[] trie = options._trie;
             int triePos = 0;
@@ -1700,10 +1700,10 @@ namespace Easy.IO
                         // Advance to the next buffer segment if this one is exhausted.
                         if (pos == limit)
                         {
-                            s = s._next;
-                            pos = s._pos;
-                            data = s._data;
-                            limit = s._limit;
+                            s = s.Next;
+                            pos = s.Pos;
+                            data = s.Data;
+                            limit = s.Limit;
                             if (s == head)
                             {
                                 if (!scanComplete) break; // We were exhausted before the scan completed.
@@ -1740,10 +1740,10 @@ namespace Easy.IO
                     // Advance to the next buffer segment if this one is exhausted.
                     if (pos == limit)
                     {
-                        s = s._next;
-                        pos = s._pos;
-                        data = s._data;
-                        limit = s._limit;
+                        s = s.Next;
+                        pos = s.Pos;
+                        data = s.Data;
+                        limit = s.Limit;
                         if (s == head)
                         {
                             s = null; // No more segments! The next trie node will be our last.

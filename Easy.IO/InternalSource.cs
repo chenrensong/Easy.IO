@@ -27,13 +27,13 @@ namespace Easy.IO
                 {
                     _timeout.ThrowIfReached();
                     Segment tail = sink.WritableSegment(1);
-                    int maxToCopy = (int)Math.Min(byteCount, Segment.SIZE - tail._limit);
-                    int bytesRead = _in.Read(tail._data, tail._limit, maxToCopy);
+                    int maxToCopy = (int)Math.Min(byteCount, Segment.SIZE - tail.Limit);
+                    int bytesRead = _in.Read(tail.Data, tail.Limit, maxToCopy);
                     if (bytesRead <= 0)
                     {
                         return -1;
                     }
-                    tail._limit += bytesRead;
+                    tail.Limit += bytesRead;
                     sink.Size += bytesRead;
                     return bytesRead;
                 }
