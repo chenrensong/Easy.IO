@@ -8,7 +8,7 @@ namespace Easy.IO
     public class Segment
     {
         /** The size Of all segments in bytes. */
-        internal static int SIZE = 8192;
+        public static int SIZE = 8192;
 
         /** Segments will be shared when doing so avoids {@code arraycopy()} Of this many bytes. */
         static int SHARE_MINIMUM = 1024;

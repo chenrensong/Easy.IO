@@ -71,7 +71,7 @@ namespace Easy.IO
             {
                 long offset = sink.Size;
                 long result = inflaterSource.Read(sink, byteCount);
-                if (result != -1)
+                if (result > 0)//!=-1
                 {
                     updateCrc(sink, offset, result);
                     return result;
@@ -178,7 +178,7 @@ namespace Easy.IO
             // |     CRC32     |     ISIZE     |
             // +---+---+---+---+---+---+---+---+
             checkEqual("CRC", source.ReadIntLe(), (int)crc.Value);
-            checkEqual("ISIZE", source.ReadIntLe(), (int)inflater.TotalIn);
+            checkEqual("ISIZE", source.ReadIntLe(), (int)inflater.TotalOut);
         }
 
         /** Updates the CRC with the given bytes. */
@@ -197,7 +197,7 @@ namespace Easy.IO
                 int pos = (int)(s.Pos + offset);
                 int toUpdate = (int)Math.Min(s.Limit - pos, byteCount);
                 var newBytes = new byte[toUpdate];
-                Array.Copy(s.Data, 0, newBytes, pos, toUpdate);
+                Array.Copy(s.Data, pos, newBytes, 0, toUpdate);
                 crc.Update(newBytes);
                 byteCount -= toUpdate;
                 offset = 0;

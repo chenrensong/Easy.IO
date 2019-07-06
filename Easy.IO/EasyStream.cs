@@ -16,7 +16,7 @@ namespace Easy.IO
 
         public override bool CanRead => true;
 
-        public override bool CanSeek => throw new NotImplementedException();
+        public override bool CanSeek => true;
 
         public override bool CanWrite => true;
 
@@ -40,7 +40,8 @@ namespace Easy.IO
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return _easyBuffer.Read(buffer, offset, count);
+            var result = _easyBuffer.Read(buffer, offset, count);
+            return result;
         }
 
         public override long Seek(long offset, SeekOrigin origin)

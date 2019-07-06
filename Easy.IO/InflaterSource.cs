@@ -76,8 +76,10 @@ namespace Easy.IO
                 }
                 catch (Exception e)
                 {
+                    break;
                 }
             }
+            return 0;
         }
 
         /// <summary>

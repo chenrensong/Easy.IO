@@ -46,8 +46,9 @@ namespace Easy.IO
 
         public void Flush()
         {
-            sink.Flush();
             deflater.Finish();
+            deflate();
+            sink.Flush();
         }
 
         public Timeout Timeout()
@@ -64,7 +65,8 @@ namespace Easy.IO
                 Segment head = source.Head;
                 int toDeflate = (int)Math.Min(byteCount, head.Limit - head.Pos);
                 deflater.SetInput(head.Data, head.Pos, toDeflate);
-
+                deflater.Flush();
+      
                 // Deflate those bytes into sink.
                 deflate();
 
@@ -79,6 +81,9 @@ namespace Easy.IO
 
                 byteCount -= toDeflate;
             }
+
+   
+
         }
 
         private void deflate()
@@ -87,13 +92,7 @@ namespace Easy.IO
             while (true)
             {
                 Segment s = buffer.WritableSegment(1);
-
-                // The 4-parameter overload of deflate() doesn't exist in the RI until
-                // Java 1.7, and is public (although with @hide) on Android since 2.3.
-                // The @hide tag means that this code won't compile against the Android
-                // 2.3 SDK, but it will run fine there.
                 int deflated = deflater.Deflate(s.Data, s.Limit, Segment.SIZE - s.Limit);
-
                 if (deflated > 0)
                 {
                     s.Limit += deflated;

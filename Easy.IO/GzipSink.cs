@@ -62,6 +62,7 @@ namespace Easy.IO
         public void Flush()
         {
             deflaterSink.Flush();
+            writeFooter();
         }
 
         public Timeout Timeout()
@@ -104,7 +105,7 @@ namespace Easy.IO
             {
                 int segmentLength = (int)Math.Min(byteCount, head.Limit - head.Pos);
                 var newBytes = new byte[segmentLength];
-                Array.Copy(head.Data, 0, newBytes, head.Pos, segmentLength);
+                Array.Copy(head.Data, head.Pos, newBytes, 0, segmentLength);
                 crc.Update(newBytes);
                 byteCount -= segmentLength;
             }

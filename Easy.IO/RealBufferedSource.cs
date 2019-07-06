@@ -32,7 +32,7 @@ namespace Easy.IO
         public bool exhausted()
         {
             if (_closed) throw new IllegalStateException("closed");
-            return _easyBuffer.exhausted() && _source.Read(_easyBuffer, Segment.SIZE) == -1;
+            return _easyBuffer.exhausted() && _source.Read(_easyBuffer, Segment.SIZE) <= 0;
         }
 
         public long IndexOf(byte b)
@@ -430,14 +430,20 @@ namespace Easy.IO
             if (_closed) throw new IllegalStateException("closed");
             while (_easyBuffer.Size < byteCount)
             {
-                if (_source.Read(_easyBuffer, Segment.SIZE) == -1) return false;
+                if (_source.Read(_easyBuffer, Segment.SIZE) <= 0)
+                {
+                    return false;
+                }
             }
             return true;
         }
 
         public void Require(long byteCount)
         {
-            if (!Request(byteCount)) throw new EOFException();
+            if (!Request(byteCount))
+            {
+                throw new EOFException();
+            }
         }
 
         public int Select(Options options)
