@@ -30,7 +30,7 @@ thread without any copying or ceremony.
 ## Get started
 
 - **Read File** 
-```
+```csharp
 	string tempFile = Path.GetTempFileName();
 	BufferedSource source = EasyIO.Buffer(EasyIO.Source(tempFile));
 	var str = source.ReadUtf8();
@@ -38,7 +38,7 @@ thread without any copying or ceremony.
 ```
 
 - **Write File** 
-```
+```csharp
 	string tempFile = Path.GetTempFileName();
 	BufferedSink sink = EasyIO.Buffer(EasyIO.Sink(tempFile));
 	sink.WriteUtf8("Hello, ");
@@ -46,7 +46,7 @@ thread without any copying or ceremony.
 ```
 
 - **Append File** 
-```
+```csharp
 	string tempFile = Path.GetTempFileName();
 	BufferedSink sink = EasyIO.Buffer(EasyIO.Sink(tempFile, FileMode.Append));
 	sink.WriteUtf8("Hello, ");
