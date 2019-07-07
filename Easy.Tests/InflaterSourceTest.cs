@@ -4,6 +4,8 @@ using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Text;
 
 namespace Easy.Tests
@@ -18,6 +20,7 @@ namespace Easy.Tests
             var inflated = inflate(deflated);
             Assert.AreEqual("God help us, we're in the hands of engineers.", inflated.ReadUtf8());
         }
+
         [Test]
         public void inflateWellCompressed()
         {

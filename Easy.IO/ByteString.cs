@@ -15,7 +15,7 @@ namespace Easy.IO
         private int _hashCode; // Lazily computed; 0 if unknown.
         private string _utf8; // Lazily computed.
 
-        public ByteString(byte[] data)
+        internal ByteString(byte[] data)
         {
             this._data = data; // Trusted internal constructor doesn't clone data.
         }
@@ -38,10 +38,8 @@ namespace Easy.IO
         {
             if (data == null) throw new IllegalArgumentException("data == null");
             Util.CheckOffsetAndCount(data.Length, offset, byteCount);
-
-            byte[] copy = new byte[byteCount];
-            Array.Copy(data, offset, copy, 0, byteCount);
-            return new ByteString(copy);
+            var newData = data.Copy(offset, byteCount);
+            return new ByteString(newData);
         }
 
         public static ByteString Of(ByteBuffer data)
@@ -210,7 +208,10 @@ namespace Easy.IO
             for (int offset = 0, read; offset < byteCount; offset += read)
             {
                 read = @in.Read(result, offset, byteCount - offset);
-                if (read == -1) throw new Exception();
+                if (read == -1)
+                {
+                    throw new Exception();
+                }
             }
             return new ByteString(result);
         }
@@ -292,18 +293,17 @@ namespace Easy.IO
             {
                 throw new IllegalArgumentException("endIndex > Length(" + _data.Length + ")");
             }
-
             int subLen = endIndex - beginIndex;
-            if (subLen < 0) throw new IllegalArgumentException("endIndex < beginIndex");
-
+            if (subLen < 0)
+            {
+                throw new IllegalArgumentException("endIndex < beginIndex");
+            }
             if ((beginIndex == 0) && (endIndex == _data.Length))
             {
                 return this;
             }
-
-            byte[] copy = new byte[subLen];
-            Array.Copy(_data, beginIndex, copy, 0, subLen);
-            return new ByteString(copy);
+            var newData = _data.Copy(beginIndex, subLen);
+            return new ByteString(newData);
         }
 
         /** Returns the byte at {@code pos}. */
@@ -541,27 +541,6 @@ namespace Easy.IO
             }
             return s.Length;
         }
-
-        //private void readObject(Stream @in)
-        //{
-        //    int dataLength = @in.readInt();
-        //    ByteString byteString = ByteString.read(@in, dataLength);
-        //    try
-        //    {
-        //        //        Field field = ByteString.class.getDeclaredField("data");
-        //        //field.setAccessible(true);
-        //        //      field.set(this, byteString.data);
-        //    }
-        //    catch
-        //    {
-        //    }
-        //}
-
-        //private void writeObject(Stream @out)
-        //{
-        //    //@out.writeInt(data.Length);
-        //    //@out.write(data);
-        //}
 
     }
 

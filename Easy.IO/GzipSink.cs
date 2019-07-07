@@ -33,7 +33,6 @@ namespace Easy.IO
             this.deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true /* No wrap */);
             this.sink = EasyIO.Buffer(sink);
             this.deflaterSink = new DeflaterSink(this.sink, deflater);
-
             writeHeader();
         }
 
@@ -104,9 +103,8 @@ namespace Easy.IO
             for (Segment head = buffer.Head; byteCount > 0; head = head.Next)
             {
                 int segmentLength = (int)Math.Min(byteCount, head.Limit - head.Pos);
-                var newBytes = new byte[segmentLength];
-                Array.Copy(head.Data, head.Pos, newBytes, 0, segmentLength);
-                crc.Update(newBytes);
+                var newData = head.Data.Copy(head.Pos, segmentLength);
+                crc.Update(newData);
                 byteCount -= segmentLength;
             }
         }

@@ -398,7 +398,7 @@ namespace Easy.IO
             {
                 return _easyBuffer.Size != 0 ? ReadUtf8(_easyBuffer.Size) : null;
             }
-            return _easyBuffer.readUtf8Line(newline);
+            return _easyBuffer.ReadUtf8Line(newline);
         }
 
         public string ReadUtf8LineStrict()
@@ -411,12 +411,12 @@ namespace Easy.IO
             if (limit < 0) throw new IllegalArgumentException("limit < 0: " + limit);
             long scanLength = limit == long.MaxValue ? long.MaxValue : limit + 1;
             long newline = IndexOf((byte)'\n', 0, scanLength);
-            if (newline != -1) return _easyBuffer.readUtf8Line(newline);
+            if (newline != -1) return _easyBuffer.ReadUtf8Line(newline);
             if (scanLength < long.MaxValue
                 && Request(scanLength) && _easyBuffer.GetByte(scanLength - 1) == '\r'
                 && Request(scanLength + 1) && _easyBuffer.GetByte(scanLength) == '\n')
             {
-                return _easyBuffer.readUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
+                return _easyBuffer.ReadUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
             }
             var data = new EasyBuffer();
             _easyBuffer.CopyTo(data, 0, Math.Min(32, _easyBuffer.Size));

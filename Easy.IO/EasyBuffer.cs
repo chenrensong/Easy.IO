@@ -919,21 +919,20 @@ namespace Easy.IO
 
         public int Select(Options options)
         {
-            //int index = selectPrefix(options, false);
-            //if (index == -1) return -1;
+            int index = SelectPrefix(options, false);
+            if (index == -1) return -1;
 
-            //// If the prefix match actually matched a full byte string, consume it and return it.
-            //int selectedSize = options.byteStrings[index].size();
-            //try
-            //{
-            //    skip(selectedSize);
-            //}
-            //catch (Exception e)
-            //{
-            //    throw new AssertionException();
-            //}
-            //return index;
-            throw new NotImplementedException();
+            // If the prefix match actually matched a full byte string, consume it and return it.
+            int selectedSize = options._byteStrings[index].Size();
+            try
+            {
+                Skip(selectedSize);
+            }
+            catch (Exception e)
+            {
+                throw new AssertionException();
+            }
+            return index;
         }
 
         public byte[] ReadByteArray()
@@ -1028,10 +1027,10 @@ namespace Easy.IO
             {
                 return _size != 0 ? ReadUtf8(_size) : null;
             }
-            return readUtf8Line(newline);
+            return ReadUtf8Line(newline);
         }
 
-        public string readUtf8Line(long newline)
+        public string ReadUtf8Line(long newline)
         {
             if (newline > 0 && GetByte(newline - 1) == '\r')
             {
@@ -1039,7 +1038,6 @@ namespace Easy.IO
                 string result = ReadUtf8((newline - 1));
                 Skip(2);
                 return result;
-
             }
             else
             {
@@ -1083,11 +1081,11 @@ namespace Easy.IO
             if (limit < 0) throw new IllegalArgumentException("limit < 0: " + limit);
             long scanLength = limit == long.MaxValue ? long.MaxValue : limit + 1;
             long newline = IndexOf((byte)'\n', 0, scanLength);
-            if (newline != -1) return readUtf8Line(newline);
+            if (newline != -1) return ReadUtf8Line(newline);
             if (scanLength < _size
                 && GetByte(scanLength - 1) == '\r' && GetByte(scanLength) == '\n')
             {
-                return readUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
+                return ReadUtf8Line(scanLength); // The line was 'limit' UTF-8 bytes followed by \r\n.
             }
             var data = new EasyBuffer();
             CopyTo(data, 0, Math.Min(32, _size));

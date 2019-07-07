@@ -10,6 +10,17 @@ namespace Easy.Tests
     class EasyIOTest
     {
         [Test]
+        public void readWriteFileCommon()
+        {
+            string tempFile = Path.GetTempFileName();
+            File.WriteAllText(tempFile, "Hello, easy.io file!");
+            Assert.True(File.Exists(tempFile));
+            var allText = File.ReadAllText(tempFile);
+            Assert.AreEqual(20, allText.Length);
+            Assert.AreEqual("Hello, easy.io file!", File.ReadAllText(tempFile));
+        }
+
+        [Test]
         public void readWriteFile()
         {
             string tempFile = Path.GetTempFileName();
