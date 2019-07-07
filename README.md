@@ -1,6 +1,7 @@
 
 ## Easy.IO
 Based on [okio](https://github.com/square/okio) project built with .Net Standard 2.0
+[![NuGet Version](https://img.shields.io/nuget/v/easy.io.svg?style=flat)](https://www.nuget.org/packages?q=easy.io) 
 
 ## ByteStrings and Buffers
 
