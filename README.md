@@ -1,6 +1,6 @@
 
 ## Easy.IO
-Based on [okio](https://github.com/square/okio) Project built with .Net Standard 2.0
+Based on [okio](https://github.com/square/okio) project built with .Net Standard 2.0
 
 ## ByteStrings and Buffers
 
