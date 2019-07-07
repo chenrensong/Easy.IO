@@ -8,12 +8,12 @@ Based on [okio](https://github.com/square/okio) project built with .Net Standard
 
 Easy.IO is built around two types that pack a lot of capability into a straightforward API:
 
- * [**ByteString**][3] is an immutable sequence of bytes. For character data, `String`
+ * [**ByteString**] is an immutable sequence of bytes. For character data, `String`
    is fundamental. `ByteString` is String's long-lost brother, making it easy to
    treat binary data as a value. This class is ergonomic: it knows how to encode
    and decode itself as hex, base64, and UTF-8.
 
- * [**EasyBuffer**][4] is a mutable sequence of bytes. Like `List`, you don't need
+ * [**EasyBuffer**] is a mutable sequence of bytes. Like `List`, you don't need
    to size your buffer in advance. You read and write buffers as a queue: write
    data to the end and read it from the front. There's no obligation to manage
    positions, limits, or capacities.
