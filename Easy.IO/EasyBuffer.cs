@@ -426,30 +426,24 @@ namespace Easy.IO
             return this;
         }
 
-        /// <summary>
-        /// todo
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
         public EasyBuffer WriteHexadecimalUnsignedLong(long v)
         {
-            //if (v == 0)
-            //{
-            //    // Both a shortcut and required since the following code can't handle zero.
-            //    return writeByte('0');
-            //}
-
-            //int width = Long.numberOfTrailingZeros(Long.highestOneBit(v)) / 4 + 1;
-            //Segment tail = writableSegment(width);
-            //byte[] data = tail.data;
-            //for (int pos = tail.limit + width - 1, start = tail.limit; pos >= start; pos--)
-            //{
-            //    data[pos] = DIGITS[(int)(v & 0xF)];
-            //    v >>= 4;
-            //}
-            //tail.limit += width;
-            //size += width;
-            throw new PlatformNotSupportedException();
+            if (v == 0)
+            {
+                // Both a shortcut and required since the following code can't handle zero.
+                return WriteByte('0');
+            }
+            int width = v.HighestOneBit().NumberOfTrailingZeros() / 4 + 1;
+            Segment tail = WritableSegment(width);
+            byte[] data = tail.Data;
+            for (int pos = tail.Limit + width - 1, start = tail.Limit; pos >= start; pos--)
+            {
+                data[pos] = DIGITS[(int)(v & 0xF)];
+                v >>= 4;
+            }
+            tail.Limit += width;
+            Size += width;
+            return this;
         }
 
         public EasyBuffer Emit()
@@ -864,7 +858,7 @@ namespace Easy.IO
                     // Detect when the shift will overflow.
                     if ((value & 0xf000000000000000L) != 0)
                     {
-                        var buffer = (EasyBuffer)new EasyBuffer().WriteHexadecimalUnsignedLong((long)value).WriteByte(b);
+                        var buffer = new EasyBuffer().WriteHexadecimalUnsignedLong((long)value).WriteByte(b);
                         throw new NumberFormatException("Number too large: " + buffer.ReadUtf8());
                     }
 
