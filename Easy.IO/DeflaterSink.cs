@@ -24,8 +24,8 @@ namespace Easy.IO
          */
         DeflaterSink(BufferedSink sink, Deflater deflater)
         {
-            if (sink == null) throw new IllegalArgumentException("source == null");
-            if (deflater == null) throw new IllegalArgumentException("inflater == null");
+            if (sink == null) throw new ArgumentException("source == null");
+            if (deflater == null) throw new ArgumentException("inflater == null");
             this.sink = sink;
             this.deflater = deflater;
         }

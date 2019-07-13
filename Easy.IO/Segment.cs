@@ -104,7 +104,7 @@ namespace Easy.IO
          */
         public Segment Split(int byteCount)
         {
-            if (byteCount <= 0 || byteCount > Limit - Pos) throw new IllegalArgumentException();
+            if (byteCount <= 0 || byteCount > Limit - Pos) throw new ArgumentException();
             Segment prefix;
 
             // We have two competing performance goals:
@@ -147,12 +147,12 @@ namespace Easy.IO
         /** Moves {@code byteCount} bytes from this segment to {@code sink}. */
         public void WriteTo(Segment sink, int byteCount)
         {
-            if (!sink.Owner) throw new IllegalArgumentException();
+            if (!sink.Owner) throw new ArgumentException();
             if (sink.Limit + byteCount > SIZE)
             {
                 // We can't fit byteCount bytes at the sink's current position. Shift sink first.
-                if (sink.Shared) throw new IllegalArgumentException();
-                if (sink.Limit + byteCount - sink.Pos > SIZE) throw new IllegalArgumentException();
+                if (sink.Shared) throw new ArgumentException();
+                if (sink.Limit + byteCount - sink.Pos > SIZE) throw new ArgumentException();
                 Array.Copy(sink.Data, sink.Pos, sink.Data, 0, sink.Limit - sink.Pos);
                 sink.Limit -= sink.Pos;
                 sink.Pos = 0;

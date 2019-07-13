@@ -24,8 +24,8 @@ namespace Easy.IO
 
         public InflaterSource(BufferedSource source, Inflater inflater)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
-            if (inflater == null) throw new IllegalArgumentException("inflater == null");
+            if (source == null) throw new ArgumentException("source == null");
+            if (inflater == null) throw new ArgumentException("inflater == null");
             this.source = source;
             this.inflater = inflater;
         }
@@ -41,7 +41,7 @@ namespace Easy.IO
 
         public long Read(EasyBuffer sink, long byteCount)
         {
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (closed) throw new IllegalStateException("closed");
             if (byteCount == 0) return 0;
 
@@ -72,7 +72,7 @@ namespace Easy.IO
                         }
                         return -1;
                     }
-                    if (sourceExhausted) throw new EOFException("source exhausted prematurely");
+                    if (sourceExhausted) throw new IndexOutOfRangeException("source exhausted prematurely");
                 }
                 catch (Exception e)
                 {

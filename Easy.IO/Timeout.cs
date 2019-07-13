@@ -34,8 +34,8 @@ namespace Easy.IO
          */
         public virtual Timeout SetTimeout(long timeout, TimeUnit unit)
         {
-            if (timeout < 0) throw new IllegalArgumentException("timeout < 0: " + timeout);
-            if (unit == default) throw new IllegalArgumentException("unit == null");
+            if (timeout < 0) throw new ArgumentException("timeout < 0: " + timeout);
+            if (unit == default) throw new ArgumentException("unit == null");
             this._timeoutNanos = unit.ToNanos(timeout);
             return this;
         }
@@ -79,9 +79,9 @@ namespace Easy.IO
         /** Set a deadline Of now plus {@code duration} time. */
         public Timeout Deadline(long duration, TimeUnit unit)
         {
-            if (duration <= 0) throw new IllegalArgumentException("duration <= 0: " + duration);
-            if (unit == default) throw new IllegalArgumentException("unit == null");
-            var value = System.NanoTime() + unit.ToNanos(duration);
+            if (duration <= 0) throw new ArgumentException("duration <= 0: " + duration);
+            if (unit == default) throw new ArgumentException("unit == null");
+            var value = SystemEx.NanoTime() + unit.ToNanos(duration);
             _deadlineNanoTime = value;
             return this;
         }
@@ -125,7 +125,7 @@ namespace Easy.IO
          */
         public virtual void ThrowIfReached()
         {
-            if (_hasDeadline && _deadlineNanoTime - System.NanoTime() <= 0)
+            if (_hasDeadline && _deadlineNanoTime - SystemEx.NanoTime() <= 0)
             {
                 throw new InterruptedIOException("deadline reached");
             }
@@ -183,7 +183,7 @@ namespace Easy.IO
 
                 // Compute how long we'll wait.
                 long waitNanos;
-                long start = System.NanoTime();
+                long start = SystemEx.NanoTime();
                 if (hasDeadline && timeoutNanos != 0)
                 {
                     long deadlineNanos = _deadlineNanoTime - start;
@@ -204,7 +204,7 @@ namespace Easy.IO
                 {
                     long waitMillis = waitNanos / 1000000L;
                     Monitor.Wait(waitMillis, (int)(waitNanos - waitMillis * 1000000L));
-                    elapsedNanos = System.NanoTime() - start;
+                    elapsedNanos = SystemEx.NanoTime() - start;
                 }
 
                 // Throw if the timeout elapsed before the monitor was notified.

@@ -38,7 +38,7 @@ namespace Easy.IO
             }
             if (list[0].Size() == 0)
             {
-                throw new IllegalArgumentException("the empty byte string is not a supported option");
+                throw new ArgumentException("the empty byte string is not a supported option");
             }
 
             // Strip elements that will never be returned because they follow their own prefixes. For
@@ -53,7 +53,7 @@ namespace Easy.IO
                     if (!byteString.StartsWith(prefix)) break;
                     if (byteString.Size() == prefix.Size())
                     {
-                        throw new IllegalArgumentException("duplicate option: " + byteString);
+                        throw new ArgumentException("duplicate option: " + byteString);
                     }
                     if (indexes[b] > indexes[a])
                     {

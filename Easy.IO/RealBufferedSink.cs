@@ -109,7 +109,7 @@ namespace Easy.IO
             while (byteCount > 0)
             {
                 long read = source.Read(_easyBuffer, byteCount);
-                if (read == -1) throw new EOFException();
+                if (read == -1) throw new IndexOutOfRangeException();
                 byteCount -= read;
                 EmitCompleteSegments();
             }
@@ -125,7 +125,7 @@ namespace Easy.IO
 
         public long WriteAll(Source source)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
+            if (source == null) throw new ArgumentException("source == null");
             long totalBytesRead = 0;
             for (long readCount; (readCount = source.Read(_easyBuffer, Segment.SIZE)) != -1;)
             {

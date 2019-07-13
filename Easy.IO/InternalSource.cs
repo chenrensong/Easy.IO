@@ -21,7 +21,7 @@ namespace Easy.IO
 
             public long Read(EasyBuffer sink, long byteCount)
             {
-                if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+                if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
                 if (byteCount == 0) return 0;
                 try
                 {

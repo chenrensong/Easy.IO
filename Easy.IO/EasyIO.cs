@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -27,11 +28,11 @@ namespace Easy.IO
         {
             if (@out == null)
             {
-                throw new IllegalArgumentException("out == null");
+                throw new ArgumentException("out == null");
             }
             if (timeout == null)
             {
-                throw new IllegalArgumentException("timeout == null");
+                throw new ArgumentException("timeout == null");
             }
             var internalSink = new InternalSink(@out, timeout);
             return internalSink;
@@ -46,7 +47,7 @@ namespace Easy.IO
         {
             if (path == null)
             {
-                throw new IllegalArgumentException("path == null");
+                throw new ArgumentException("path == null");
             }
             return Source(File.OpenRead(path));
         }
@@ -55,7 +56,7 @@ namespace Easy.IO
         {
             if (path == null)
             {
-                throw new IllegalArgumentException("path == null");
+                throw new ArgumentException("path == null");
             }
             return Sink(File.OpenWrite(path));
         }
@@ -64,7 +65,7 @@ namespace Easy.IO
         {
             if (path == null)
             {
-                throw new IllegalArgumentException("path == null");
+                throw new ArgumentException("path == null");
             }
             return Sink(File.Open(path, fileMode));
         }
@@ -73,11 +74,11 @@ namespace Easy.IO
         {
             if (@in == null)
             {
-                throw new IllegalArgumentException("in == null");
+                throw new ArgumentException("in == null");
             }
             if (timeout == null)
             {
-                throw new IllegalArgumentException("timeout == null");
+                throw new ArgumentException("timeout == null");
             }
             var internalSource = new InternalSource(@in, timeout);
             return internalSource;
@@ -87,7 +88,7 @@ namespace Easy.IO
         {
             if (file == null)
             {
-                throw new IllegalArgumentException("file == null");
+                throw new ArgumentException("file == null");
             }
             return Source(file.OpenRead());
         }
@@ -96,7 +97,7 @@ namespace Easy.IO
         {
             if (file == null)
             {
-                throw new IllegalArgumentException("file == null");
+                throw new ArgumentException("file == null");
             }
             return Sink(file.OpenWrite());
         }

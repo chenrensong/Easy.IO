@@ -43,7 +43,7 @@ namespace Easy.IO
 
         public GzipSource(Source source)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
+            if (source == null) throw new ArgumentException("source == null");
             this.inflater = new Inflater(true);
             this.source = EasyIO.Buffer(source);
             this.inflaterSource = new InflaterSource(this.source, inflater);
@@ -56,7 +56,7 @@ namespace Easy.IO
 
         public long Read(EasyBuffer sink, long byteCount)
         {
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (byteCount == 0) return 0;
 
             // If we haven't consumed the header, we must consume it before anything else.
@@ -143,7 +143,7 @@ namespace Easy.IO
             if (((flags >> FNAME) & 1) == 1)
             {
                 long index = source.IndexOf((byte)0);
-                if (index == -1) throw new EOFException();
+                if (index == -1) throw new IndexOutOfRangeException();
                 if (fhcrc) updateCrc(source.Buffer(), 0, index + 1);
                 source.Skip(index + 1);
             }
@@ -155,7 +155,7 @@ namespace Easy.IO
             if (((flags >> FCOMMENT) & 1) == 1)
             {
                 long index = source.IndexOf((byte)0);
-                if (index == -1) throw new EOFException();
+                if (index == -1) throw new IndexOutOfRangeException();
                 if (fhcrc) updateCrc(source.Buffer(), 0, index + 1);
                 source.Skip(index + 1);
             }

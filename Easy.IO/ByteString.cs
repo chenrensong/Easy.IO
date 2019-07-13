@@ -25,7 +25,7 @@ namespace Easy.IO
          */
         public static ByteString Of(params byte[] data)
         {
-            if (data == null) throw new IllegalArgumentException("data == null");
+            if (data == null) throw new ArgumentException("data == null");
             byte[] clone = data.Copy();
             return new ByteString(clone);
         }
@@ -36,7 +36,7 @@ namespace Easy.IO
          */
         public static ByteString Of(byte[] data, int offset, int byteCount)
         {
-            if (data == null) throw new IllegalArgumentException("data == null");
+            if (data == null) throw new ArgumentException("data == null");
             Util.CheckOffsetAndCount(data.Length, offset, byteCount);
             var newData = data.Copy(offset, byteCount);
             return new ByteString(newData);
@@ -44,7 +44,7 @@ namespace Easy.IO
 
         public static ByteString Of(ByteBuffer data)
         {
-            if (data == null) throw new IllegalArgumentException("data == null");
+            if (data == null) throw new ArgumentException("data == null");
             byte[] copy = data.ToArray();
             return new ByteString(copy);
         }
@@ -52,7 +52,7 @@ namespace Easy.IO
         /** Returns a new byte string containing the {@code UTF-8} bytes Of {@code s}. */
         public static ByteString EncodeUtf8(string s)
         {
-            if (s == null) throw new IllegalArgumentException("s == null");
+            if (s == null) throw new ArgumentException("s == null");
             ByteString byteString = new ByteString(Util.UTF_8.GetBytes(s));
             byteString._utf8 = s;
             return byteString;
@@ -61,8 +61,8 @@ namespace Easy.IO
         /** Returns a new byte string containing the {@code charset}-encoded bytes Of {@code s}. */
         public static ByteString EncodeString(string s, Encoding charset)
         {
-            if (s == null) throw new IllegalArgumentException("s == null");
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (s == null) throw new ArgumentException("s == null");
+            if (charset == null) throw new ArgumentException("charset == null");
             return new ByteString(charset.GetBytes(s));
         }
 
@@ -80,7 +80,7 @@ namespace Easy.IO
         /** Constructs a new {@code string} by decoding the bytes using {@code charset}. */
         public string GetString(Encoding charset)
         {
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (charset == null) throw new ArgumentException("charset == null");
             return charset.GetString(_data);
         }
 
@@ -151,7 +151,7 @@ namespace Easy.IO
          */
         public static ByteString DecodeBase64(string base64)
         {
-            if (base64 == null) throw new IllegalArgumentException("base64 == null");
+            if (base64 == null) throw new ArgumentException("base64 == null");
             byte[] decoded = IO.Base64.decode(base64);
             return decoded != null ? new ByteString(decoded) : null;
         }
@@ -172,8 +172,8 @@ namespace Easy.IO
         /** Decodes the hex-encoded bytes and returns their value a byte string. */
         public static ByteString DecodeHex(string hex)
         {
-            if (hex == null) throw new IllegalArgumentException("hex == null");
-            if (hex.Length % 2 != 0) throw new IllegalArgumentException("Unexpected hex string: " + hex);
+            if (hex == null) throw new ArgumentException("hex == null");
+            if (hex.Length % 2 != 0) throw new ArgumentException("Unexpected hex string: " + hex);
 
             byte[] result = new byte[hex.Length / 2];
             for (int i = 0; i < result.Length; i++)
@@ -190,19 +190,19 @@ namespace Easy.IO
             if (c >= '0' && c <= '9') return c - '0';
             if (c >= 'a' && c <= 'f') return c - 'a' + 10;
             if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-            throw new IllegalArgumentException("Unexpected hex digit: " + c);
+            throw new ArgumentException("Unexpected hex digit: " + c);
         }
 
         /**
          * Reads {@code count} bytes from {@code in} and returns the result.
          *
-         * @throws java.io.EOFException if {@code in} has fewer than {@code count}
+         * @throws java.io.IndexOutOfRangeException if {@code in} has fewer than {@code count}
          *     bytes to read.
          */
         public static ByteString Read(Stream @in, int byteCount)
         {
-            if (@in == null) throw new IllegalArgumentException("in == null");
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (@in == null) throw new ArgumentException("in == null");
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
 
             byte[] result = new byte[byteCount];
             for (int offset = 0, read; offset < byteCount; offset += read)
@@ -288,15 +288,15 @@ namespace Easy.IO
          */
         public ByteString Substring(int beginIndex, int endIndex)
         {
-            if (beginIndex < 0) throw new IllegalArgumentException("beginIndex < 0");
+            if (beginIndex < 0) throw new ArgumentException("beginIndex < 0");
             if (endIndex > _data.Length)
             {
-                throw new IllegalArgumentException("endIndex > Length(" + _data.Length + ")");
+                throw new ArgumentException("endIndex > Length(" + _data.Length + ")");
             }
             int subLen = endIndex - beginIndex;
             if (subLen < 0)
             {
-                throw new IllegalArgumentException("endIndex < beginIndex");
+                throw new ArgumentException("endIndex < beginIndex");
             }
             if ((beginIndex == 0) && (endIndex == _data.Length))
             {
@@ -345,7 +345,7 @@ namespace Easy.IO
         /** Writes the contents Of this byte string to {@code out}. */
         public void Write(Stream @out)
         {
-            if (@out == null) throw new IllegalArgumentException("out == null");
+            if (@out == null) throw new ArgumentException("out == null");
             @out.Write(_data, 0, _data.Length);
         }
 

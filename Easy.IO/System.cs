@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Easy.IO
 {
-    static class System
+    static class SystemEx
     {
         public static long NanoTime()
         {

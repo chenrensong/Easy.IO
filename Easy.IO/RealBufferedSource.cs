@@ -50,7 +50,7 @@ namespace Easy.IO
             if (_closed) throw new IllegalStateException("closed");
             if (fromIndex < 0 || toIndex < fromIndex)
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     string.Format("fromIndex=%s toIndex=%s", fromIndex, toIndex));
             }
 
@@ -165,8 +165,8 @@ namespace Easy.IO
 
         public long Read(EasyBuffer sink, long byteCount)
         {
-            if (sink == null) throw new IllegalArgumentException("sink == null");
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (sink == null) throw new ArgumentException("sink == null");
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (_closed) throw new IllegalStateException("closed");
 
             if (_easyBuffer.Size == 0)
@@ -181,7 +181,7 @@ namespace Easy.IO
 
         public long ReadAll(Sink sink)
         {
-            if (sink == null) throw new IllegalArgumentException("sink == null");
+            if (sink == null) throw new ArgumentException("sink == null");
 
             long totalBytesWritten = 0;
             while (_source.Read(_easyBuffer, Segment.SIZE) != -1)
@@ -242,7 +242,7 @@ namespace Easy.IO
                     // Non-digit, or non-leading negative sign.
                     if (pos == 0)
                     {
-                        throw new NumberFormatException(string.Format(
+                        throw new FormatException(string.Format(
                             "Expected leading [0-9] or '-' character but was %#x", b));
                     }
                     break;
@@ -257,7 +257,7 @@ namespace Easy.IO
             {
                 Require(sink.Length);
             }
-            catch (EOFException e)
+            catch (IndexOutOfRangeException e)
             {
                 // The underlying source is exhausted. Copy the bytes we got before rethrowing.
                 int offset = 0;
@@ -278,7 +278,7 @@ namespace Easy.IO
             {
                 Require(byteCount);
             }
-            catch (EOFException e)
+            catch (IndexOutOfRangeException e)
             {
                 // The underlying source is exhausted. Copy the bytes we got before rethrowing.
                 sink.WriteAll(_easyBuffer);
@@ -298,7 +298,7 @@ namespace Easy.IO
                     // Non-digit, or non-leading negative sign.
                     if (pos == 0)
                     {
-                        throw new NumberFormatException(string.Format(
+                        throw new FormatException(string.Format(
                             "Expected leading [0-9a-fA-F] character but was %#x", b));
                     }
                     break;
@@ -345,7 +345,7 @@ namespace Easy.IO
 
         public string ReadString(Encoding charset)
         {
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (charset == null) throw new ArgumentException("charset == null");
 
             _easyBuffer.WriteAll(_source);
             return _easyBuffer.ReadString(charset);
@@ -354,7 +354,7 @@ namespace Easy.IO
         public string ReadString(long byteCount, Encoding charset)
         {
             Require(byteCount);
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (charset == null) throw new ArgumentException("charset == null");
             return _easyBuffer.ReadString(byteCount, charset);
         }
 
@@ -408,7 +408,7 @@ namespace Easy.IO
 
         public string ReadUtf8LineStrict(long limit)
         {
-            if (limit < 0) throw new IllegalArgumentException("limit < 0: " + limit);
+            if (limit < 0) throw new ArgumentException("limit < 0: " + limit);
             long scanLength = limit == long.MaxValue ? long.MaxValue : limit + 1;
             long newline = IndexOf((byte)'\n', 0, scanLength);
             if (newline != -1) return _easyBuffer.ReadUtf8Line(newline);
@@ -420,13 +420,13 @@ namespace Easy.IO
             }
             var data = new EasyBuffer();
             _easyBuffer.CopyTo(data, 0, Math.Min(32, _easyBuffer.Size));
-            throw new EOFException("\\n not found: limit=" + Math.Min(_easyBuffer.Size, limit)
+            throw new IndexOutOfRangeException("\\n not found: limit=" + Math.Min(_easyBuffer.Size, limit)
                 + " content=" + data.ReadByteString().Hex() + '…');
         }
 
         public bool Request(long byteCount)
         {
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (_closed) throw new IllegalStateException("closed");
             while (_easyBuffer.Size < byteCount)
             {
@@ -442,7 +442,7 @@ namespace Easy.IO
         {
             if (!Request(byteCount))
             {
-                throw new EOFException();
+                throw new IndexOutOfRangeException();
             }
         }
 
@@ -476,7 +476,7 @@ namespace Easy.IO
             {
                 if (_easyBuffer.Size == 0 && _source.Read(_easyBuffer, Segment.SIZE) == -1)
                 {
-                    throw new EOFException();
+                    throw new IndexOutOfRangeException();
                 }
                 long toSkip = Math.Min(byteCount, _easyBuffer.Size);
                 _easyBuffer.Skip(toSkip);

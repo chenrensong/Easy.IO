@@ -19,19 +19,19 @@ namespace Easy.IO
         {
             if (@string == null)
             {
-                throw new IllegalArgumentException("string == null");
+                throw new ArgumentException("string == null");
             }
             if (beginIndex < 0)
             {
-                throw new IllegalArgumentException("beginIndex < 0: " + beginIndex);
+                throw new ArgumentException("beginIndex < 0: " + beginIndex);
             }
             if (endIndex < beginIndex)
             {
-                throw new IllegalArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
+                throw new ArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
             }
             if (endIndex > @string.Length)
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     "endIndex > string.length: " + endIndex + " > " + @string.Length);
             }
 

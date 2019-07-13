@@ -29,7 +29,7 @@ namespace Easy.IO
 
         public GzipSink(Sink sink)
         {
-            if (sink == null) throw new IllegalArgumentException("sink == null");
+            if (sink == null) throw new ArgumentException("sink == null");
             this.deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true /* No wrap */);
             this.sink = EasyIO.Buffer(sink);
             this.deflaterSink = new DeflaterSink(this.sink, deflater);
@@ -71,7 +71,7 @@ namespace Easy.IO
 
         public void Write(EasyBuffer source, long byteCount)
         {
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (byteCount == 0) return;
 
             updateCrc(source, byteCount);

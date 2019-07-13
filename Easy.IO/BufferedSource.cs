@@ -21,7 +21,7 @@ namespace Easy.IO
 
         /**
          * Returns when the buffer contains at least {@code byteCount} bytes. Throws an
-         * {@link java.io.EOFException} if the source is exhausted before the required bytes can be read.
+         * {@link java.io.IndexOutOfRangeException} if the source is exhausted before the required bytes can be read.
          */
         void Require(long byteCount);
 
@@ -194,7 +194,7 @@ namespace Easy.IO
          *   assertEquals(1L, buffer.readDecimalLong());
          * }</pre>
          *
-         * @throws NumberFormatException if the found digits do not fit into a {@code long} or a decimal
+         * @throws FormatException if the found digits do not fit into a {@code long} or a decimal
          * number was not present.
          */
         long ReadDecimalLong();
@@ -213,14 +213,14 @@ namespace Easy.IO
          *   assertEquals(0x10L, buffer.readHexadecimalUnsignedLong());
          * }</pre>
          *
-         * @throws NumberFormatException if the found hexadecimal does not fit into a {@code long} or
+         * @throws FormatException if the found hexadecimal does not fit into a {@code long} or
          * hexadecimal was not found.
          */
         ulong ReadHexadecimalUnsignedLong();
 
         /**
          * Reads and discards {@code byteCount} bytes from this source. Throws an
-         * {@link java.io.EOFException} if the source is exhausted before the
+         * {@link java.io.IndexOutOfRangeException} if the source is exhausted before the
          * requested bytes can be skipped.
          */
         void Skip(long byteCount);
@@ -272,7 +272,7 @@ namespace Easy.IO
 
         /**
          * Removes exactly {@code sink.length} bytes from this and copies them into {@code sink}. Throws
-         * an {@link java.io.EOFException} if the requested number Of bytes cannot be read.
+         * an {@link java.io.IndexOutOfRangeException} if the requested number Of bytes cannot be read.
          */
         void ReadFully(byte[] sink);
 
@@ -284,7 +284,7 @@ namespace Easy.IO
 
         /**
          * Removes exactly {@code byteCount} bytes from this and appends them to {@code sink}. Throws an
-         * {@link java.io.EOFException} if the requested number Of bytes cannot be read.
+         * {@link java.io.IndexOutOfRangeException} if the requested number Of bytes cannot be read.
          */
         void ReadFully(EasyBuffer sink, long byteCount);
 
@@ -370,7 +370,7 @@ namespace Easy.IO
          * either {@code "\n"} or {@code "\r\n"}; these characters are not included in the result.
          *
          * <p><strong>On the end Of the stream this method throws.</strong> Every call must consume either
-         * '\r\n' or '\n'. If these characters are absent in the stream, an {@link java.io.EOFException}
+         * '\r\n' or '\n'. If these characters are absent in the stream, an {@link java.io.IndexOutOfRangeException}
          * is thrown. Use this for machine-generated data where a missing line break implies truncated
          * input.
          */
@@ -383,7 +383,7 @@ namespace Easy.IO
          *
          * <p>The returned string will have at most {@code limit} UTF-8 bytes, and the maximum number
          * Of bytes scanned is {@code limit + 2}. If {@code limit == 0} this will always throw
-         * an {@code EOFException} because no bytes will be scanned.
+         * an {@code IndexOutOfRangeException} because no bytes will be scanned.
          *
          * <p>This method is safe. No bytes are discarded if the match fails, and the caller is free
          * to try another match: <pre>{@code
@@ -404,7 +404,7 @@ namespace Easy.IO
          * Removes and returns a single UTF-8 code point, reading between 1 and 4 bytes as necessary.
          *
          * <p>If this source is exhausted before a complete code point can be read, this throws an {@link
-         * java.io.EOFException} and consumes no input.
+         * java.io.IndexOutOfRangeException} and consumes no input.
          *
          * <p>If this source doesn't start with a properly-encoded UTF-8 code point, this method will
          * remove 1 or more non-UTF-8 bytes and return the replacement character ({@code U+FFFD}). This

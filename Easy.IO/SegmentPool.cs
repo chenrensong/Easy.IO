@@ -41,7 +41,7 @@ namespace Easy.IO
         {
             if (segment.Next != null || segment.Prev != null)
             {
-                throw new IllegalArgumentException();
+                throw new ArgumentException();
             }
             if (segment.Shared)
             {

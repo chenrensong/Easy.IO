@@ -18,7 +18,7 @@ namespace Easy.IO
         {
             if ((offset | byteCount) < 0 || offset > size || size - offset < byteCount)
             {
-                throw new ArrayIndexOutOfBoundsException(
+                throw new IndexOutOfRangeException(
                     string.Format("size=%s offset=%s byteCount=%s", size, offset, byteCount));
             }
         }

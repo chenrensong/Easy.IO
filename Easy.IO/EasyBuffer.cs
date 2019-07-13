@@ -70,20 +70,20 @@ namespace Easy.IO
 
         public EasyBuffer Write(ByteString byteString)
         {
-            if (byteString == null) throw new IllegalArgumentException("byteString == null");
+            if (byteString == null) throw new ArgumentException("byteString == null");
             byteString.Write(this);
             return this;
         }
 
         public EasyBuffer Write(byte[] source)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
+            if (source == null) throw new ArgumentException("source == null");
             return Write(source, 0, source.Length);
         }
 
         public EasyBuffer Write(byte[] source, int offset, int byteCount)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
+            if (source == null) throw new ArgumentException("source == null");
             Util.CheckOffsetAndCount(source.Length, offset, byteCount);
 
             int limit = offset + byteCount;
@@ -104,7 +104,7 @@ namespace Easy.IO
 
         public long WriteAll(Source source)
         {
-            if (source == null) throw new IllegalArgumentException("source == null");
+            if (source == null) throw new ArgumentException("source == null");
             long totalBytesRead = 0;
             for (long readCount; (readCount = source.Read(this, Segment.SIZE)) != -1;)
             {
@@ -134,15 +134,15 @@ namespace Easy.IO
 
         public EasyBuffer WriteUtf8(string @string, int beginIndex, int endIndex)
         {
-            if (@string == null) throw new IllegalArgumentException("string == null");
-            if (beginIndex < 0) throw new IllegalArgumentException("beginIndex < 0: " + beginIndex);
+            if (@string == null) throw new ArgumentException("string == null");
+            if (beginIndex < 0) throw new ArgumentException("beginIndex < 0: " + beginIndex);
             if (endIndex < beginIndex)
             {
-                throw new IllegalArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
+                throw new ArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
             }
             if (endIndex > @string.Length)
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     "endIndex > string.length: " + endIndex + " > " + @string.Length);
             }
 
@@ -265,7 +265,7 @@ namespace Easy.IO
             }
             else
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     "Unexpected code point: " + codePoint.ToString("x"));
             }
 
@@ -279,18 +279,18 @@ namespace Easy.IO
 
         public EasyBuffer WriteString(string @string, int beginIndex, int endIndex, Encoding charset)
         {
-            if (@string == null) throw new IllegalArgumentException("string == null");
+            if (@string == null) throw new ArgumentException("string == null");
             if (beginIndex < 0) throw new IllegalAccessException("beginIndex < 0: " + beginIndex);
             if (endIndex < beginIndex)
             {
-                throw new IllegalArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
+                throw new ArgumentException("endIndex < beginIndex: " + endIndex + " < " + beginIndex);
             }
             if (endIndex > @string.Length())
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     "endIndex > string.length: " + endIndex + " > " + @string.Length());
             }
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (charset == null) throw new ArgumentException("charset == null");
             if (charset.Equals(Util.UTF_8)) return WriteUtf8(@string, beginIndex, endIndex);
             byte[] data = charset.GetBytes(@string.Substring(beginIndex, endIndex));
             return Write(data, 0, data.Length);
@@ -513,8 +513,8 @@ namespace Easy.IO
             // an equivalent buffer [30%, 62%, 82%] and then move the head segment,
             // yielding sink [51%, 91%, 30%] and source [62%, 82%].
 
-            if (source == null) throw new IllegalArgumentException("source == null");
-            if (source == this) throw new IllegalArgumentException("source == this");
+            if (source == null) throw new ArgumentException("source == null");
+            if (source == this) throw new ArgumentException("source == this");
             Util.CheckOffsetAndCount(source._size, 0, byteCount);
 
             while (byteCount > 0)
@@ -581,7 +581,7 @@ namespace Easy.IO
 
         public void Require(long byteCount)
         {
-            if (_size < byteCount) throw new EOFException();
+            if (_size < byteCount) throw new IndexOutOfRangeException();
         }
 
         public bool Request(long byteCount)
@@ -772,7 +772,7 @@ namespace Easy.IO
                         {
                             EasyBuffer buffer = (EasyBuffer)new EasyBuffer().WriteDecimalLong(value).WriteByte(b);
                             if (!negative) buffer.ReadByte(); // Skip negative sign.
-                            throw new NumberFormatException("Number too large: " + buffer.ReadUtf8());
+                            throw new FormatException("Number too large: " + buffer.ReadUtf8());
                         }
                         value *= 10;
                         value += digit;
@@ -786,7 +786,7 @@ namespace Easy.IO
                     {
                         if (seen == 0)
                         {
-                            throw new NumberFormatException(
+                            throw new FormatException(
                                 "Expected leading [0-9] or '-' character but was 0x" + b.ToString("x"));
                         }
                         // Set a flag to stop iteration. We still need to run through segment updating below.
@@ -847,7 +847,7 @@ namespace Easy.IO
                     {
                         if (seen == 0)
                         {
-                            throw new NumberFormatException(
+                            throw new FormatException(
                                 "Expected leading [0-9a-fA-F] character but was 0x" + b.ToString("x"));
                         }
                         // Set a flag to stop iteration. We still need to run through segment updating below.
@@ -859,7 +859,7 @@ namespace Easy.IO
                     if ((value & 0xf000000000000000L) != 0)
                     {
                         var buffer = new EasyBuffer().WriteHexadecimalUnsignedLong((long)value).WriteByte(b);
-                        throw new NumberFormatException("Number too large: " + buffer.ReadUtf8());
+                        throw new FormatException("Number too large: " + buffer.ReadUtf8());
                     }
 
                     value <<= 4;
@@ -885,7 +885,7 @@ namespace Easy.IO
         {
             while (byteCount > 0)
             {
-                if (_head == null) throw new EOFException();
+                if (_head == null) throw new IndexOutOfRangeException();
 
                 int toSkip = (int)Math.Min(byteCount, _head.Limit - _head.Pos);
                 _size -= toSkip;
@@ -939,7 +939,7 @@ namespace Easy.IO
             Util.CheckOffsetAndCount(_size, 0, byteCount);
             if (byteCount > int.MaxValue)
             {
-                throw new IllegalArgumentException("byteCount > Integer.MAX_VALUE: " + byteCount);
+                throw new ArgumentException("byteCount > Integer.MAX_VALUE: " + byteCount);
             }
 
             byte[] result = new byte[(int)byteCount];
@@ -958,7 +958,7 @@ namespace Easy.IO
             while (offset < sink.Length)
             {
                 int read = this.Read(sink, offset, sink.Length - offset);
-                if (read == -1) throw new EOFException();
+                if (read == -1) throw new IndexOutOfRangeException();
                 offset += read;
             }
         }
@@ -989,7 +989,7 @@ namespace Easy.IO
             if (_size < byteCount)
             {
                 sink.Write(this, _size); // Exhaust ourselves.
-                throw new EOFException();
+                throw new IndexOutOfRangeException();
             }
             sink.Write(this, byteCount);
         }
@@ -1072,7 +1072,7 @@ namespace Easy.IO
 
         public string ReadUtf8LineStrict(long limit)
         {
-            if (limit < 0) throw new IllegalArgumentException("limit < 0: " + limit);
+            if (limit < 0) throw new ArgumentException("limit < 0: " + limit);
             long scanLength = limit == long.MaxValue ? long.MaxValue : limit + 1;
             long newline = IndexOf((byte)'\n', 0, scanLength);
             if (newline != -1) return ReadUtf8Line(newline);
@@ -1083,13 +1083,13 @@ namespace Easy.IO
             }
             var data = new EasyBuffer();
             CopyTo(data, 0, Math.Min(32, _size));
-            throw new EOFException("\\n not found: limit=" + Math.Min(_size, limit)
+            throw new IndexOutOfRangeException("\\n not found: limit=" + Math.Min(_size, limit)
                 + " content=" + data.ReadByteString().Hex() + '…');
         }
 
         public int ReadUtf8CodePoint()
         {
-            if (_size == 0) throw new EOFException();
+            if (_size == 0) throw new IndexOutOfRangeException();
 
             byte b0 = GetByte(0);
             int codePoint;
@@ -1137,7 +1137,7 @@ namespace Easy.IO
 
             if (_size < byteCount)
             {
-                throw new EOFException("size < " + byteCount + ": " + _size
+                throw new IndexOutOfRangeException("size < " + byteCount + ": " + _size
                     + " (to read code point prefixed 0x" + b0.ToString("x") + ")");
             }
 
@@ -1188,10 +1188,10 @@ namespace Easy.IO
         public string ReadString(long byteCount, Encoding charset)
         {
             Util.CheckOffsetAndCount(_size, 0, byteCount);
-            if (charset == null) throw new IllegalArgumentException("charset == null");
+            if (charset == null) throw new ArgumentException("charset == null");
             if (byteCount > int.MaxValue)
             {
-                throw new IllegalArgumentException("byteCount > Integer.MAX_VALUE: " + byteCount);
+                throw new ArgumentException("byteCount > Integer.MAX_VALUE: " + byteCount);
             }
             if (byteCount == 0) return "";
 
@@ -1228,7 +1228,7 @@ namespace Easy.IO
         {
             if (fromIndex < 0 || toIndex < fromIndex)
             {
-                throw new IllegalArgumentException(
+                throw new ArgumentException(
                     string.Format("size=%s fromIndex=%s toIndex=%s", _size, fromIndex, toIndex));
             }
 
@@ -1300,8 +1300,8 @@ namespace Easy.IO
 
         public long IndexOf(ByteString bytes, long fromIndex)
         {
-            if (bytes.Size() == 0) throw new IllegalArgumentException("bytes is empty");
-            if (fromIndex < 0) throw new IllegalArgumentException("fromIndex < 0");
+            if (bytes.Size() == 0) throw new ArgumentException("bytes is empty");
+            if (fromIndex < 0) throw new ArgumentException("fromIndex < 0");
 
             Segment s;
             long offset;
@@ -1372,7 +1372,7 @@ namespace Easy.IO
 
         public long IndexOfElement(ByteString targetBytes, long fromIndex)
         {
-            if (fromIndex < 0) throw new IllegalArgumentException("fromIndex < 0");
+            if (fromIndex < 0) throw new ArgumentException("fromIndex < 0");
 
             Segment s;
             long offset;
@@ -1494,8 +1494,8 @@ namespace Easy.IO
 
         public long Read(EasyBuffer sink, long byteCount)
         {
-            if (sink == null) throw new IllegalArgumentException("sink == null");
-            if (byteCount < 0) throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+            if (sink == null) throw new ArgumentException("sink == null");
+            if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (_size == 0) return -1L;
             if (byteCount > _size) byteCount = _size;
             sink.Write(this, byteCount);
@@ -1504,7 +1504,7 @@ namespace Easy.IO
 
         public Segment WritableSegment(int minimumCapacity)
         {
-            if (minimumCapacity < 1 || minimumCapacity > Segment.SIZE) throw new IllegalArgumentException();
+            if (minimumCapacity < 1 || minimumCapacity > Segment.SIZE) throw new ArgumentException();
             if (_head == null)
             {
                 _head = SegmentPool.Take(); // Acquire a first segment.
@@ -1529,7 +1529,7 @@ namespace Easy.IO
          */
         public EasyBuffer CopyTo(Stream @out, long offset, long byteCount)
         {
-            if (@out == null) throw new IllegalArgumentException("out == null");
+            if (@out == null) throw new ArgumentException("out == null");
             Util.CheckOffsetAndCount(_size, offset, byteCount);
             if (byteCount == 0) return this;
 
@@ -1556,7 +1556,7 @@ namespace Easy.IO
         /** Copy {@code byteCount} bytes from this, starting at {@code offset}, to {@code out}. */
         public EasyBuffer CopyTo(EasyBuffer @out, long offset, long byteCount)
         {
-            if (@out == null) throw new IllegalArgumentException("out == null");
+            if (@out == null) throw new ArgumentException("out == null");
             Util.CheckOffsetAndCount(_size, offset, byteCount);
             if (byteCount == 0)
             {
