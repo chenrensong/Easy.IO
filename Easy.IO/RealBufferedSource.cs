@@ -26,7 +26,7 @@ namespace Easy.IO
             if (_closed) return;
             _closed = true;
             _source.Dispose();
-            _easyBuffer.clear();
+            _easyBuffer.Clear();
         }
 
         public bool exhausted()
@@ -186,7 +186,7 @@ namespace Easy.IO
             long totalBytesWritten = 0;
             while (_source.Read(_easyBuffer, Segment.SIZE) != -1)
             {
-                long emitByteCount = _easyBuffer.completeSegmentByteCount();
+                long emitByteCount = _easyBuffer.CompleteSegmentByteCount();
                 if (emitByteCount > 0)
                 {
                     totalBytesWritten += emitByteCount;

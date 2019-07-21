@@ -19,6 +19,11 @@ namespace Easy.IO
             return new RealBufferedSink(sink);
         }
 
+        public static Sink Sink(Socket socket)
+        {
+            return Sink(new NetworkStream(socket), new Timeout());
+        }
+
         public static Sink Sink(Stream @out)
         {
             return Sink(@out, new Timeout());
@@ -36,6 +41,11 @@ namespace Easy.IO
             }
             var internalSink = new InternalSink(@out, timeout);
             return internalSink;
+        }
+
+        public static Source Source(Socket socket)
+        {
+            return Source(new NetworkStream(socket), new Timeout());
         }
 
         public static Source Source(Stream @in)

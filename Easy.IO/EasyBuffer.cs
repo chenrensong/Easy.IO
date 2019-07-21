@@ -7,11 +7,10 @@ namespace Easy.IO
 {
     public class EasyBuffer : BufferedSink<EasyBuffer>, BufferedSource<EasyBuffer>
     {
-        private static byte[] DIGITS =
-    { (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'5', (byte)'6',
+        private static byte[] DIGITS ={ (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'5', (byte)'6',
             (byte)'7', (byte)'8', (byte)'9', (byte)'a', (byte)'b', (byte)'c',(byte) 'd', (byte)'e',(byte) 'f' };
-        public const int REPLACEMENT_CHARACTER = '\ufffd';
 
+        public const int REPLACEMENT_CHARACTER = '\ufffd';
         private Segment _head;
         private long _size;
 
@@ -27,7 +26,7 @@ namespace Easy.IO
             }
         }
 
-        internal void clear()
+        internal void Clear()
         {
             try
             {
@@ -55,7 +54,7 @@ namespace Easy.IO
             return this;
         }
 
-        public long completeSegmentByteCount()
+        public long CompleteSegmentByteCount()
         {
             long result = _size;
             if (result == 0) return 0;

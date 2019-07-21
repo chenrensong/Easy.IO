@@ -58,7 +58,7 @@ namespace Easy.IO
         public BufferedSink EmitCompleteSegments()
         {
             if (_closed) throw new IllegalStateException("closed");
-            long byteCount = _easyBuffer.completeSegmentByteCount();
+            long byteCount = _easyBuffer.CompleteSegmentByteCount();
             if (byteCount > 0) _sink.Write(_easyBuffer, byteCount);
             return this;
         }
