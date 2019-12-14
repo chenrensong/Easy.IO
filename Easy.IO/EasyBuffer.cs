@@ -573,7 +573,7 @@ namespace Easy.IO
         {
         }
 
-        public bool exhausted()
+        public bool Exhausted()
         {
             return _size == 0;
         }

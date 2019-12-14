@@ -17,7 +17,7 @@ namespace Easy.IO
          * Returns true if there are no more bytes in this source. This will block until there are bytes
          * to read or the source is definitely exhausted.
          */
-        bool exhausted();
+        bool Exhausted();
 
         /**
          * Returns when the buffer contains at least {@code byteCount} bytes. Throws an

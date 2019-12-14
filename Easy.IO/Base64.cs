@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace Easy.IO
@@ -10,7 +11,7 @@ namespace Easy.IO
         {
         }
 
-        public static byte[] decode(string @in)
+        public static byte[] Decode(string @in)
         {
             // Ignore trailing '=' padding and whitespace from the input.
             int limit = @in.Length;
@@ -128,17 +129,17 @@ namespace Easy.IO
         (byte)  '5', (byte)'6', (byte)'7', (byte)'8', (byte)'9', (byte)'-', (byte)'_'
       };
 
-        public static string encode(byte[] @in)
+        public static string Encode(byte[] @in)
         {
-            return encode(@in, MAP);
+            return Encode(@in, MAP);
         }
 
-        public static string encodeUrl(byte[] @in)
+        public static string EncodeUrl(byte[] @in)
         {
-            return encode(@in, URL_MAP);
+            return Encode(@in, URL_MAP);
         }
 
-        public static string encode(byte[] @in, byte[] map)
+        public static string Encode(byte[] @in, byte[] map)
         {
             int Length = (@in.Length + 2) / 3 * 4;
             byte[] @out = new byte[Length];

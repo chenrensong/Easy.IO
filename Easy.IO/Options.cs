@@ -68,14 +68,14 @@ namespace Easy.IO
             }
 
             var trieBytes = new EasyBuffer();
-            buildTrieRecursive(0L, trieBytes, 0, list, 0, list.Count, indexes);
+            BuildTrieRecursive(0L, trieBytes, 0, list, 0, list.Count, indexes);
 
-            int[] trie = new int[intCount(trieBytes)];
+            int[] trie = new int[IntCount(trieBytes)];
             for (int i = 0; i < trie.Length; i++)
             {
                 trie[i] = trieBytes.ReadInt();
             }
-            if (!trieBytes.exhausted())
+            if (!trieBytes.Exhausted())
             {
                 throw new AssertionException();
             }
@@ -108,7 +108,7 @@ namespace Easy.IO
          * This structure is used to improve locality and performance when selecting from a list of
          * options.
          */
-        private static void buildTrieRecursive(
+        private static void BuildTrieRecursive(
             long nodeOffset,
             EasyBuffer node,
             int byteStringOffset,
@@ -149,7 +149,7 @@ namespace Easy.IO
                 }
 
                 // Compute the offset that childNodes will get when we append it to node.
-                long childNodesOffset = nodeOffset + intCount(node) + 2 + (selectChoiceCount * 2);
+                long childNodesOffset = nodeOffset + IntCount(node) + 2 + (selectChoiceCount * 2);
 
                 node.WriteInt(selectChoiceCount);
                 node.WriteInt(prefixIndex);
@@ -187,8 +187,8 @@ namespace Easy.IO
                     else
                     {
                         // The result is another node.
-                        node.WriteInt((int)(-1 * (childNodesOffset + intCount(childNodes))));
-                        buildTrieRecursive(
+                        node.WriteInt((int)(-1 * (childNodesOffset + IntCount(childNodes))));
+                        BuildTrieRecursive(
                             childNodesOffset,
                             childNodes,
                             byteStringOffset + 1,
@@ -221,7 +221,7 @@ namespace Easy.IO
                 }
 
                 // Compute the offset that childNodes will get when we append it to node.
-                long childNodesOffset = nodeOffset + intCount(node) + 2 + scanByteCount + 1;
+                long childNodesOffset = nodeOffset + IntCount(node) + 2 + scanByteCount + 1;
 
                 node.WriteInt(-scanByteCount);
                 node.WriteInt(prefixIndex);
@@ -244,8 +244,8 @@ namespace Easy.IO
                 {
                     // The result is another node.
                     var childNodes = new EasyBuffer();
-                    node.WriteInt((int)(-1 * (childNodesOffset + intCount(childNodes))));
-                    buildTrieRecursive(
+                    node.WriteInt((int)(-1 * (childNodesOffset + IntCount(childNodes))));
+                    BuildTrieRecursive(
                         childNodesOffset,
                         childNodes,
                         byteStringOffset + scanByteCount,
@@ -275,7 +275,7 @@ namespace Easy.IO
             }
         }
 
-        private static int intCount(EasyBuffer trieBytes)
+        private static int IntCount(EasyBuffer trieBytes)
         {
             return (int)(trieBytes.Size / 4);
         }

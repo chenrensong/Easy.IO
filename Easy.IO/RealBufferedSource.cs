@@ -29,10 +29,10 @@ namespace Easy.IO
             _easyBuffer.Clear();
         }
 
-        public bool exhausted()
+        public bool Exhausted()
         {
             if (_closed) throw new IllegalStateException("closed");
-            return _easyBuffer.exhausted() && _source.Read(_easyBuffer, Segment.SIZE) <= 0;
+            return _easyBuffer.Exhausted() && _source.Read(_easyBuffer, Segment.SIZE) <= 0;
         }
 
         public long IndexOf(byte b)

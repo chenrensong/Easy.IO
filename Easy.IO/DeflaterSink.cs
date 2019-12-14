@@ -47,7 +47,7 @@ namespace Easy.IO
         public void Flush()
         {
             deflater.Finish();
-            deflate();
+            Deflate();
             sink.Flush();
         }
 
@@ -68,7 +68,7 @@ namespace Easy.IO
                 deflater.Flush();
       
                 // Deflate those bytes into sink.
-                deflate();
+                Deflate();
 
                 // Mark those bytes as read.
                 source.Size -= toDeflate;
@@ -82,11 +82,9 @@ namespace Easy.IO
                 byteCount -= toDeflate;
             }
 
-   
-
         }
 
-        private void deflate()
+        private void Deflate()
         {
             var buffer = sink.Buffer();
             while (true)

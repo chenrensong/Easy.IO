@@ -273,7 +273,7 @@ namespace Easy.IO
         /// <param name="unit"></param>
         /// <param name="obj"></param>
         /// <param name="timeout"></param>
-        public static void timedWait(this TimeUnit unit, Object obj, Int32 timeout)
+        public static void TimedWait(this TimeUnit unit, Object obj, Int32 timeout)
         {
             if (timeout > 0)
             {
@@ -288,7 +288,7 @@ namespace Easy.IO
         /// <param name="unit"></param>
         /// <param name="thread"></param>
         /// <param name="timeout"></param>
-        public static void timedJoin(this TimeUnit unit, Thread thread, Int32 timeout)
+        public static void TimedJoin(this TimeUnit unit, Thread thread, Int32 timeout)
         {
             if (timeout > 0)
             {
@@ -302,7 +302,7 @@ namespace Easy.IO
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="timeout"></param>
-        public static void sleep(this TimeUnit unit, Int32 timeout)
+        public static void Sleep(this TimeUnit unit, Int32 timeout)
         {
             if (timeout > 0)
             {

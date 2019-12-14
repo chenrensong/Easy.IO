@@ -33,7 +33,7 @@ namespace Easy.IO
             this.deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true /* No wrap */);
             this.sink = EasyIO.Buffer(sink);
             this.deflaterSink = new DeflaterSink(this.sink, deflater);
-            writeHeader();
+            WriteHeader();
         }
 
         public void Dispose()
@@ -61,7 +61,7 @@ namespace Easy.IO
         public void Flush()
         {
             deflaterSink.Flush();
-            writeFooter();
+            WriteFooter();
         }
 
         public Timeout Timeout()
@@ -74,12 +74,12 @@ namespace Easy.IO
             if (byteCount < 0) throw new ArgumentException("byteCount < 0: " + byteCount);
             if (byteCount == 0) return;
 
-            updateCrc(source, byteCount);
+            UpdateCrc(source, byteCount);
             deflaterSink.Write(source, byteCount);
         }
 
 
-        private void writeHeader()
+        private void WriteHeader()
         {
             // Write the Gzip header directly into the buffer for the sink to avoid handling IOException.
             var buffer = this.sink.Buffer();
@@ -91,14 +91,18 @@ namespace Easy.IO
             buffer.WriteByte(0x00); // No OS.
         }
 
-        private void writeFooter()
+        private void WriteFooter()
         {
             sink.WriteIntLe((int)crc.Value); // CRC of original data.
             sink.WriteIntLe((int)deflater.TotalIn); // Length of original data.
         }
 
-        /** Updates the CRC with the given bytes. */
-        private void updateCrc(EasyBuffer buffer, long byteCount)
+        /// <summary>
+        /// Updates the CRC with the given bytes.
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="byteCount"></param>
+        private void UpdateCrc(EasyBuffer buffer, long byteCount)
         {
             for (Segment head = buffer.Head; byteCount > 0; head = head.Next)
             {

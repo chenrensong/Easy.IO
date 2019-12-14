@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Easy.IO
 {
-    //1.15.0
     class Util
     {
         /** A cheap and type-safe constant for the UTF-8 Charset. */

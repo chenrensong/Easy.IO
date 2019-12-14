@@ -47,7 +47,7 @@ namespace Easy.IO
 
             while (true)
             {
-                var sourceExhausted = refill();
+                var sourceExhausted = Refill();
 
                 // Decompress the inflater's compressed data into the sink.
                 try
@@ -63,7 +63,7 @@ namespace Easy.IO
                     }
                     if (inflater.IsFinished || inflater.IsNeedingDictionary)
                     {
-                        releaseInflatedBytes();
+                        ReleaseInflatedBytes();
                         if (tail.Pos == tail.Limit)
                         {
                             // We allocated a tail segment, but didn't end up needing it. Recycle!
@@ -88,16 +88,16 @@ namespace Easy.IO
         /// was exhausted.
         /// </summary>
         /// <returns></returns>
-        public bool refill()
+        public bool Refill()
         {
             if (!inflater.IsNeedingInput) return false;
 
-            releaseInflatedBytes();
+            ReleaseInflatedBytes();
 
             if (inflater.RemainingInput != 0) throw new IllegalStateException("?"); // TODO: possible?
 
             // If there are compressed bytes in the source, assign them to the inflater.
-            if (source.exhausted()) return true;
+            if (source.Exhausted()) return true;
 
             // Assign buffer bytes to the inflater.
             Segment head = source.Buffer().Head;
@@ -107,7 +107,7 @@ namespace Easy.IO
         }
 
         /** When the inflater has processed compressed data, remove it from the buffer. */
-        private void releaseInflatedBytes()
+        private void ReleaseInflatedBytes()
         {
             if (bufferBytesHeldByInflater == 0) return;
             int toRelease = bufferBytesHeldByInflater - inflater.RemainingInput;

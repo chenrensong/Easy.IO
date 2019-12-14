@@ -91,7 +91,7 @@ namespace Easy.IO
          */
         public string Base64()
         {
-            return IO.Base64.encode(_data);
+            return IO.Base64.Encode(_data);
         }
 
         /** Returns the 128-bit MD5 hash Of this byte string. */
@@ -142,7 +142,7 @@ namespace Easy.IO
          */
         public string Base64Url()
         {
-            return IO.Base64.encodeUrl(_data);
+            return IO.Base64.EncodeUrl(_data);
         }
 
         /**
@@ -152,7 +152,7 @@ namespace Easy.IO
         public static ByteString DecodeBase64(string base64)
         {
             if (base64 == null) throw new ArgumentException("base64 == null");
-            byte[] decoded = IO.Base64.decode(base64);
+            byte[] decoded = IO.Base64.Decode(base64);
             return decoded != null ? new ByteString(decoded) : null;
         }
 

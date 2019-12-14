@@ -114,7 +114,7 @@ namespace Easy.Tests
             {
                 Assert.AreEqual(codePoint, buffer.ReadUtf8CodePoint());
             }
-            Assert.True(buffer.exhausted());
+            Assert.True(buffer.Exhausted());
         }
 
         private void assertStringEncoded(String hex, String @string)

@@ -62,7 +62,7 @@ namespace Easy.IO
             // If we haven't consumed the header, we must consume it before anything else.
             if (section == SECTION_HEADER)
             {
-                consumeHeader();
+                ConsumeHeader();
                 section = SECTION_BODY;
             }
 
@@ -73,7 +73,7 @@ namespace Easy.IO
                 long result = inflaterSource.Read(sink, byteCount);
                 if (result > 0)//!=-1
                 {
-                    updateCrc(sink, offset, result);
+                    UpdateCrc(sink, offset, result);
                     return result;
                 }
                 section = SECTION_TRAILER;
@@ -84,14 +84,14 @@ namespace Easy.IO
             // the end of a GzipSource you guarantee that the CRC has been checked.
             if (section == SECTION_TRAILER)
             {
-                consumeTrailer();
+                ConsumeTrailer();
                 section = SECTION_DONE;
 
                 // Gzip streams self-terminate: they return -1 before their underlying
                 // source returns -1. Here we attempt to force the underlying stream to
                 // return -1 which may trigger it to release its resources. If it doesn't
                 // return -1, then our Gzip data finished prematurely!
-                if (!source.exhausted())
+                if (!source.Exhausted())
                 {
                     throw new Exception("gzip finished without exhausting source");
                 }
@@ -105,7 +105,7 @@ namespace Easy.IO
             return source.Timeout();
         }
 
-        private void consumeHeader()
+        private void ConsumeHeader()
         {
             // Read the 10-byte header. We peek at the flags byte first so we know if we
             // need to CRC the entire header. Then we read the magic ID1ID2 sequence.
@@ -116,10 +116,10 @@ namespace Easy.IO
             source.Require(10);
             byte flags = source.Buffer().GetByte(3);
             var fhcrc = ((flags >> FHCRC) & 1) == 1;
-            if (fhcrc) updateCrc(source.Buffer(), 0, 10);
+            if (fhcrc) UpdateCrc(source.Buffer(), 0, 10);
 
             short id1id2 = source.ReadShort();
-            checkEqual("ID1ID2", (short)0x1f8b, id1id2);
+            CheckEqual("ID1ID2", (short)0x1f8b, id1id2);
             source.Skip(8);
 
             // Skip optional extra fields.
@@ -129,10 +129,10 @@ namespace Easy.IO
             if (((flags >> FEXTRA) & 1) == 1)
             {
                 source.Require(2);
-                if (fhcrc) updateCrc(source.Buffer(), 0, 2);
+                if (fhcrc) UpdateCrc(source.Buffer(), 0, 2);
                 int xlen = source.Buffer().ReadShortLe();
                 source.Require(xlen);
-                if (fhcrc) updateCrc(source.Buffer(), 0, xlen);
+                if (fhcrc) UpdateCrc(source.Buffer(), 0, xlen);
                 source.Skip(xlen);
             }
 
@@ -144,7 +144,7 @@ namespace Easy.IO
             {
                 long index = source.IndexOf((byte)0);
                 if (index == -1) throw new IndexOutOfRangeException();
-                if (fhcrc) updateCrc(source.Buffer(), 0, index + 1);
+                if (fhcrc) UpdateCrc(source.Buffer(), 0, index + 1);
                 source.Skip(index + 1);
             }
 
@@ -156,7 +156,7 @@ namespace Easy.IO
             {
                 long index = source.IndexOf((byte)0);
                 if (index == -1) throw new IndexOutOfRangeException();
-                if (fhcrc) updateCrc(source.Buffer(), 0, index + 1);
+                if (fhcrc) UpdateCrc(source.Buffer(), 0, index + 1);
                 source.Skip(index + 1);
             }
 
@@ -166,23 +166,23 @@ namespace Easy.IO
             // +---+---+
             if (fhcrc)
             {
-                checkEqual("FHCRC", source.ReadShortLe(), (short)crc.Value);
+                CheckEqual("FHCRC", source.ReadShortLe(), (short)crc.Value);
                 crc.Reset();
             }
         }
 
-        private void consumeTrailer()
+        private void ConsumeTrailer()
         {
             // Read the eight-byte trailer. Confirm the body's CRC and size.
             // +---+---+---+---+---+---+---+---+
             // |     CRC32     |     ISIZE     |
             // +---+---+---+---+---+---+---+---+
-            checkEqual("CRC", source.ReadIntLe(), (int)crc.Value);
-            checkEqual("ISIZE", source.ReadIntLe(), (int)inflater.TotalOut);
+            CheckEqual("CRC", source.ReadIntLe(), (int)crc.Value);
+            CheckEqual("ISIZE", source.ReadIntLe(), (int)inflater.TotalOut);
         }
 
         /** Updates the CRC with the given bytes. */
-        private void updateCrc(EasyBuffer buffer, long offset, long byteCount)
+        private void UpdateCrc(EasyBuffer buffer, long offset, long byteCount)
         {
             // Skip segments that we aren't checksumming.
             Segment s = buffer.Head;
@@ -203,7 +203,7 @@ namespace Easy.IO
             }
         }
 
-        private void checkEqual(String name, int expected, int actual)
+        private void CheckEqual(String name, int expected, int actual)
         {
             if (actual != expected)
             {
