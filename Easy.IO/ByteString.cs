@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Easy.IO.Extensions;
 
 namespace Easy.IO
 {

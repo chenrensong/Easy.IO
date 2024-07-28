@@ -479,8 +479,9 @@ namespace Easy.IO
          */
         public byte[] ToArray()
         {
-            byte[] bytes = new byte[_buf.Length - _readIndex];
-            Array.Copy(_buf, _readIndex, bytes, 0, bytes.Length);
+            int readableBytes = ReadableBytes();
+            byte[] bytes = new byte[readableBytes];
+            Array.Copy(_buf, _readIndex, bytes, 0, readableBytes);
             return bytes;
         }
 

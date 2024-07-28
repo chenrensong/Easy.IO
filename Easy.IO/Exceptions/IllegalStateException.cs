@@ -18,8 +18,5 @@ namespace Easy.IO
         {
         }
 
-        protected IllegalStateException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

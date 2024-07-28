@@ -17,9 +17,5 @@ namespace Easy.IO
         public InterruptedIOException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        protected InterruptedIOException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

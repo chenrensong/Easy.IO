@@ -3,10 +3,6 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Text;
 
 namespace Easy.Tests
 {

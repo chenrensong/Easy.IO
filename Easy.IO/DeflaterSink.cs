@@ -1,7 +1,5 @@
 ﻿using ICSharpCode.SharpZipLib.Zip.Compression;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Easy.IO
 {

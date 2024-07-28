@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
-namespace Easy.IO
+namespace Easy.IO.Extensions
 {
     public sealed class AlgorithmHelper
     {
@@ -28,19 +26,19 @@ namespace Easy.IO
             switch (algorithmType)
             {
                 case Algorithm.MD5:
-                    provider = new MD5CryptoServiceProvider();
+                    provider = MD5.Create();
                     break;
                 case Algorithm.SHA1:
-                    provider = new SHA1CryptoServiceProvider();
+                    provider = SHA1.Create();
                     break;
                 case Algorithm.SHA256:
-                    provider = new SHA256CryptoServiceProvider();
+                    provider = SHA256.Create();
                     break;
                 case Algorithm.SHA384:
-                    provider = new SHA384CryptoServiceProvider();
+                    provider = SHA384.Create();
                     break;
                 case Algorithm.SHA512:
-                    provider = new SHA512CryptoServiceProvider();
+                    provider = SHA512.Create();
                     break;
                 case Algorithm.HMACSHA1:
                     provider = new HMACSHA1(key);

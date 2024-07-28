@@ -1,14 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
-using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Easy.IO
 {
 
     public partial class EasyIO
     {
+
+        internal static JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            TypeInfoResolver = JsonSerializer.IsReflectionEnabledByDefault ? new DefaultJsonTypeInfoResolver() : new DefaultJsonTypeInfoResolver()
+        };
+
+        /// <summary>
+        /// 初始化SerializerOptions
+        /// </summary>
+        /// <param name="jsonSerializerOptions"></param>
+        public static void InitJsonSerializerOptions(JsonSerializerOptions jsonSerializerOptions)
+        {
+            DefaultSerializerOptions = jsonSerializerOptions;
+        }
+
+
         public static BufferedSource Buffer(Source source)
         {
             return new RealBufferedSource(source);
